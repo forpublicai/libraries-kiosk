@@ -1,0 +1,318 @@
+/* Clean layout matching the mock: bordered grid, red hover accents, brand badge, bottom nav */
+
+
+@font-face {
+  font-family: 'NBInternationalProCG';
+  /* The .woff2, .woff, and .ttf files must all share the same file name, 
+     e.g., nbinternationalprocg-regular-webfont.woff2 */
+  src: url('assets/fonts/nb/nbinternationalprocg-regular-webfont.woff2') format('woff2'),
+       url('assets/fonts/nb/nbinternationalprocg-regular-webfont.woff') format('woff'),
+       url('assets/fonts/nb/nbinternationalprocg-regular-webfont.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NBInternationalProCG';
+  src: url('assets/fonts/nb/nbinternationalprocg-bold-webfont.woff2') format('woff2'),
+       url('assets/fonts/nb/nbinternationalprocg-bold-webfont.woff') format('woff'),
+       url('assets/fonts/nb/nbinternationalprocg-bold-webfont.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+:root{
+  --ink:#000;
+  --bg:#fff;
+  --red:#ef3c24; /* accent + hover color */
+    --border-width:1px;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+html,body{ height:95%; }
+
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family: 'NBInternationalProCG', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  line-height:1;
+}
+
+.bottom-nav{  font-family: 'NBInternationalProCG', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Chat bar (inspired by publicai.co/chat) */
+.chat-bar{
+  margin-bottom: 20px;
+}
+
+.chat-form{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border: 2px solid var(--ink);
+  border-radius: 24px;
+  padding: 4px 4px 4px 20px;
+  transition: border-color .2s ease;
+}
+
+.chat-form:focus-within{
+  border-color: var(--red);
+}
+
+.chat-input{
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: 'NBInternationalProCG', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  font-size: 16px;
+  padding: 12px 8px;
+  color: var(--ink);
+}
+
+.chat-input::placeholder{
+  color: #999;
+}
+
+.chat-submit{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+  color: var(--bg);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: background-color .2s ease, transform .1s ease;
+  flex-shrink: 0;
+}
+
+.chat-submit:hover{
+  background: var(--red);
+  transform: scale(1.05);
+}
+
+.chat-submit:active{
+  transform: scale(0.95);
+}
+
+.chat-submit svg{
+  width: 20px;
+  height: 20px;
+}
+.page{
+  max-width:1180px;
+  margin:40px auto;
+  padding:0 16px;
+}
+
+/* Top brand */
+.brand{ display:flex; align-items:center; margin-bottom:18px; }
+
+
+
+.brand-mark{ display:inline-block; width:20%; background:none; border-radius:2px; }
+
+
+/* Framed content (Mondrian-style outer border and inner lines via gap) */
+.frame{ 
+  background:var(--ink); 
+  border: 1px solid var(--ink); 
+  padding: var(--border-width);
+  box-sizing: border-box;
+}
+
+/* Grid */
+.services-grid{
+  display:grid;
+  grid-template-columns: repeat(14, 1fr);
+  grid-auto-rows: 100px; /* base unit */
+    gap: var(--border-width);
+  grid-auto-flow: dense; /* back-fill gaps: no empty spaces */
+}
+
+.service-card{
+  position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; color:var(--ink); text-decoration:none;
+  background: var(--bg);
+  padding:16px; transition: color .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+
+/* Borders are created by the grid gap; no per-card borders needed */
+
+/* Mondrian spans on desktop (dense packing avoids gaps) */
+.card--replit{ grid-column: span 4; grid-row: span 2; }
+.card--chatbot{ grid-column: span 6; grid-row: span 2; }
+.card--midjourney{ grid-column: span 6; grid-row: span 2; }
+.card--suno{ grid-column: span 4; grid-row: span 2; }
+.card--nano{ grid-column: span 8; grid-row: span 2; }
+.card--runway{ grid-column: span 5; grid-row: span 2; }
+.card--presentations{ grid-column: span 9; grid-row: span 2; }
+/* New bottom row cards */
+.card--datasets{ grid-column: span 9; grid-row: span 2; }
+.card--feature{ grid-column: span 5; grid-row: span 2; }
+
+/* Typography */
+.service-title{ margin:0 0 8px 0; font-size: clamp(36px, 5vw, 64px); font-weight:800; letter-spacing:.2px; }
+.service-title--xl{ font-size: clamp(42px, 6vw, 80px); }
+
+/* Text container to prevent layout shift */
+.service-desc, 
+.service-desc-current{
+  margin:0; 
+  max-width:26ch; 
+  font-size:14px; 
+  line-height: 1.4;
+}
+
+.service-desc{ 
+  display:block; 
+}
+
+.service-desc-current{
+  display:none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(50px, 3vw, 28px);
+  font-weight: 700;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+/* Emoji marker above titles */
+.service-emoji{ display:block; font-size:32px; line-height:1; margin-bottom:8px; }
+
+/* Hover interactions: red accent with blur */
+.service-card:hover, .service-card:focus-visible{
+  outline:0; background:var(--red); color: var(--bg); border-color:var(--red);
+}
+
+/* On hover: blur the content and show current service name */
+.service-card:hover .service-title,
+.service-card:focus-visible .service-title,
+.service-card:hover .service-desc,
+.service-card:focus-visible .service-desc{
+  filter: blur(10px);
+  opacity: 100%;
+}
+
+.service-card:hover .service-desc-current,
+.service-card:focus-visible .service-desc-current{
+  display: block;
+}
+
+/* Bottom nav */
+.bottom-nav{
+  /* was: border-top:var(--border) solid var(--bg); padding:10px 12px; */
+  background: var(--bg);      /* make the bar white */
+  color: var(--ink);          /* text back to black */
+  margin-top: var(--border-width);  /* black rule above (from frame background) */
+  border-top: 1px  solid var(--ink);
+  padding: 12px 16px;
+}
+.bottom-nav ul{ list-style:none; margin:0; padding:0; display:flex; gap:28px; justify-content:center; letter-spacing:.3em; font-weight:700; }
+.bottom-nav a{ color:var(--ink); text-decoration:none; }
+.bottom-nav a:hover{ color: var(--red); }
+.bottom-nav li.active a{ position:relative; }
+.bottom-nav li.active a::after{ content:""; position:absolute; left:0; right:0; bottom:-6px; height:3px; background:var(--red); }
+
+/* remove this old rule that forced the bar to look black */
+.bottom-nav {color: var(--bg);}
+/* Content pages */
+.content-page {
+  background: var(--bg);
+  padding: 40px;
+  min-height: 400px;
+}
+
+.content-page h1 {
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 700;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.content-section {
+  margin-bottom: 32px;
+}
+
+.content-section h2 {
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--red);
+}
+
+.content-section h3 {
+  font-size: clamp(16px, 2vw, 20px);
+  font-weight: 700;
+  margin-bottom: 8px;
+  margin-top: 20px;
+}
+
+.content-section p {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  color: var(--ink);
+}
+
+.content-section ul {
+  margin-left: 20px;
+  margin-bottom: 16px;
+}
+
+.content-section li {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.content-section strong {
+  font-weight: 700;
+}
+
+/* FAQ specific styles */
+.faq-section {
+  margin-bottom: 40px;
+}
+
+.faq-item {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+}
+
+.faq-item h3 {
+  color: var(--ink);
+  margin-top: 0;
+}
+
+/* Footer */
+.footer{ text-align:center; color:#ffffff; margin-top:12px; font-size:14px; }
+
+/* Responsive */
+@media (max-width: 1100px){
+  .services-grid{ grid-template-columns: repeat(8, 1fr); grid-auto-rows: 100px; }
+  .card--replit, .card--chatbot, .card--midjourney, .card--suno, .card--runway, .card--datasets, .card--feature{ grid-column: span 4; grid-row: span 3; }
+  .card--nano{ grid-column: span 8; grid-row: span 4; }
+  .card--presentations{ grid-column: span 8; grid-row: span 3; }
+}
+
+@media (max-width: 720px){
+  .services-grid{ grid-template-columns: repeat(2, 1fr); grid-auto-rows: 110px; }
+  .card--replit, .card--chatbot, .card--midjourney, .card--suno, .card--runway, .card--presentations, .card--datasets, .card--feature{ grid-column: span 2; grid-row: span 2; }
+  .card--nano{ grid-column: span 2; grid-row: span 3; }
+  .service-title--xl{ font-size: clamp(32px, 10vw, 64px); }
+}

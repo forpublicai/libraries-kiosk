@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feature Requests • Library AI</title>
+  <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Propose features and vote on ideas for Library AI." />
+  <link rel="icon" href="data:," />
+  <style>
+    .features-wrap{ max-width: 900px; margin: 24px auto; padding: 0 16px; }
+    .feature-form{ display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px; }
+    .feature-form input, .feature-form textarea{ font-size: 16px; padding: 10px; border: 1px solid #c3c4c7; border-radius: 6px; }
+    .feature-form textarea{ min-height: 80px; resize: vertical; }
+    .feature-form button{ align-self: start; background: var(--ink); color: var(--bg); border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; }
+    .feature-form button:hover{ background: var(--red); }
+
+    .list{ border: 1px solid #e5e5e5; border-radius: 8px; background: #fff; }
+    .item{ display: grid; grid-template-columns: auto 1fr; gap: 12px; padding: 14px 12px; border-bottom: 1px solid #eee; }
+    .item:last-child{ border-bottom: none; }
+  .item.pending{ opacity: 0.6; }
+
+    .vote{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .vote button{ width: 34px; height: 28px; border-radius: 6px; border: 1px solid #d0d0d0; background: #fff; color: #000; cursor: pointer; }
+    .vote button:hover{ border-color: var(--red); color: var(--red); }
+    .score{ font-weight: 700; font-size: 14px; }
+
+    .title{ font-size: 16px; font-weight: 700; margin:0 0 6px; }
+    .desc{ font-size: 14px; color: #333; margin:0; }
+    .meta{ font-size: 12px; color:#777; margin-top: 6px; }
+
+    .topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 14px; }
+    .search{ flex:1; display:flex; gap:8px; }
+    .search input{ flex:1; padding:8px 10px; border:1px solid #c3c4c7; border-radius:6px; }
+    .filters{ display:flex; gap:8px; }
+    .filters select{ padding:8px 10px; border:1px solid #c3c4c7; border-radius:6px; }
+
+    .back-link{ display:inline-block; margin: 12px 16px; }
+    .empty{ padding: 16px; color:#666; text-align:center; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="brand" aria-label="Public AI">
+      <div class="brand-badge">
+        <img src="assets/imgs/lib-logo.png" alt="Public AI Logo" class="brand-mark" />
+      </div>
+    </header>
+
+    <section class="content-page">
+      <div class="features-wrap">
+        <h1>Feature Requests</h1>
+        <div class="feature-form" id="feature-form">
+          <input type="text" id="feature-title" placeholder="Suggest a feature (short title)" aria-label="Feature title" />
+          <textarea id="feature-desc" placeholder="Optional details" aria-label="Feature details"></textarea>
+          <button id="add-feature" type="button">Add feature</button>
+          <div id="status" role="status" aria-live="polite"></div>
+        </div>
+
+        <div class="topbar">
+          <div class="search">
+            <input type="search" id="q" placeholder="Search features" aria-label="Search features" />
+          </div>
+          <div class="filters">
+            <select id="sort">
+              <option value="score">Top</option>
+              <option value="new">Newest</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="list" id="feature-list" aria-live="polite"></div>
+        <a class="back-link" href="index.html">← Back to dashboard</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Minimal remote-backed feature tracker using a tiny Cloudflare Worker API
+    const API_BASE = 'https://paint-lib-feature-tracker.daostar-one.workers.dev';
+    const el = (id) => document.getElementById(id);
+    const CLIENT_KEY = 'fr.clientId.v1';
+    function clientId(){ let id = localStorage.getItem(CLIENT_KEY); if(!id){ id = Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem(CLIENT_KEY,id);} return id; }
+
+    function setStatus(msg, isError=false){ const s=el('status'); if(!s) return; s.textContent=msg||''; s.style.color = isError ? '#d93025' : '#0b8043'; if(msg) setTimeout(()=>{ if(s.textContent===msg) s.textContent=''; }, 2500); }
+    function escapeHtml(s){ return (s||'').replace(/[&<>\"']/g, c=>({"&":"&amp;","<":"&lt;","\"":"&quot;","'":"&#39;","\n":"<br>"}[c]) || c); }
+
+    async function api(path, opts){
+      // Avoid sending Content-Type to keep the request "simple" and skip CORS preflight
+      const res = await fetch(`${API_BASE}${path}`, { credentials: 'omit', ...opts });
+      const ct = res.headers.get('content-type')||''; const body = ct.includes('application/json')? await res.json(): await res.text();
+      if(!res.ok) throw new Error(body && (body.error || body.message) || `HTTP ${res.status}`);
+      return body;
+    }
+
+    async function loadAll(){
+      const sort = el('sort').value || 'score';
+      const data = await api(`/v1/features?sort=${encodeURIComponent(sort)}`);
+      return data.items || [];
+    }
+
+    async function render(){
+      try{
+        const q = (el('q').value||'').toLowerCase();
+        let items = await loadAll();
+        if(q) items = items.filter(it => it.title.toLowerCase().includes(q) || (it.desc||'').toLowerCase().includes(q));
+        const list = el('feature-list');
+        if(!items.length){ list.innerHTML = '<div class="empty">No requests yet. Be the first to suggest something!</div>'; return; }
+        list.innerHTML = items.map(it=>{
+          return `<div class="item" data-id="${it.id}">
+            <div class="vote">
+              <button class="up" title="Upvote" aria-label="Upvote">▲</button>
+              <div class="score" aria-label="Score">${it.score}</div>
+              <button class="down" title="Downvote" aria-label="Downvote">▼</button>
+            </div>
+            <div>
+              <div class="title">${escapeHtml(it.title)}</div>
+              ${it.desc?`<p class="desc">${escapeHtml(it.desc)}</p>`:''}
+              <div class="meta">${new Date(it.createdAt).toLocaleString()}</div>
+            </div>
+          </div>`;
+        }).join('');
+      }catch(e){ setStatus(e.message || 'Failed to load', true); }
+    }
+
+    async function addFeature(){
+      const title = (el('feature-title').value||'').trim();
+      const desc = (el('feature-desc').value||'').trim();
+      if(!title){ setStatus('Please enter a title', true); return; }
+
+      // Optimistic insert
+      const list = el('feature-list');
+      if(list){
+        // Clear empty state if present
+        if(list.children.length === 1 && list.firstElementChild?.classList.contains('empty')){
+          list.innerHTML = '';
+        }
+        const tmpId = 'tmp-' + Math.random().toString(36).slice(2);
+        const nowStr = new Date().toLocaleString();
+        const pendingHtml = `<div class="item pending" data-id="${tmpId}" data-temp="1">
+          <div class="vote">
+            <button class="up" title="Upvote" aria-label="Upvote" disabled>▲</button>
+            <div class="score" aria-label="Score">0</div>
+            <button class="down" title="Downvote" aria-label="Downvote" disabled>▼</button>
+          </div>
+          <div>
+            <div class="title">${escapeHtml(title)}</div>
+            ${desc?`<p class="desc">${escapeHtml(desc)}</p>`:''}
+            <div class="meta">Saving… ${nowStr}</div>
+          </div>
+        </div>`;
+        list.insertAdjacentHTML('afterbegin', pendingHtml);
+      }
+
+      const addBtn = el('add-feature');
+      if(addBtn) addBtn.disabled = true;
+      try{
+        const created = await api('/v1/features', { method: 'POST', body: JSON.stringify({ title, desc }) });
+        // Clear form
+        el('feature-title').value=''; el('feature-desc').value='';
+        setStatus('Feature added.');
+        // Reconcile pending node
+        const pendingNode = document.querySelector('.item.pending[data-temp="1"]');
+        if(pendingNode){
+          pendingNode.classList.remove('pending');
+          pendingNode.removeAttribute('data-temp');
+          pendingNode.setAttribute('data-id', created.id);
+          const meta = pendingNode.querySelector('.meta');
+          if(meta) meta.textContent = new Date(created.createdAt).toLocaleString();
+          // Enable buttons
+          const up = pendingNode.querySelector('button.up');
+          const down = pendingNode.querySelector('button.down');
+          if(up) up.disabled = false;
+          if(down) down.disabled = false;
+        }
+        // Optionally re-render to apply current sort/filter
+        await render();
+      }catch(e){
+        // Remove optimistic node on failure
+        const pendingNode = document.querySelector('.item.pending[data-temp="1"]');
+        if(pendingNode) pendingNode.remove();
+        setStatus(e.message || 'Failed to add', true);
+      } finally {
+        if(addBtn) addBtn.disabled = false;
+      }
+    }
+
+    async function vote(id, delta){
+      // Optimistic UI update for snappier feel
+      const item = document.querySelector(`.item[data-id="${id}"]`);
+      if(!item){ return; }
+      const scoreEl = item.querySelector('.score');
+      const upBtn = item.querySelector('button.up');
+      const downBtn = item.querySelector('button.down');
+      const prevScore = Number(scoreEl?.textContent||0);
+      const optimistic = prevScore + (delta > 0 ? 1 : -1);
+      if(scoreEl) scoreEl.textContent = optimistic;
+      if(upBtn) upBtn.disabled = true;
+      if(downBtn) downBtn.disabled = true;
+      try{
+  const res = await api('/v1/vote', { method: 'POST', body: JSON.stringify({ id, delta, clientId: clientId() }) });
+        if(scoreEl && typeof res?.score === 'number') scoreEl.textContent = res.score;
+      }catch(e){
+        // revert on failure
+        if(scoreEl) scoreEl.textContent = prevScore;
+        setStatus(e.message || 'Vote failed', true);
+      } finally {
+        if(upBtn) upBtn.disabled = false;
+        if(downBtn) downBtn.disabled = false;
+      }
+    }
+
+    document.addEventListener('click', (e)=>{
+      const up = e.target.closest('button.up');
+      const down = e.target.closest('button.down');
+      const item = e.target.closest('.item');
+      if(item && (up||down)){
+        e.preventDefault();
+        vote(item.getAttribute('data-id'), up? 1 : -1);
+      }
+    });
+
+    el('add-feature').addEventListener('click', addFeature);
+    el('q').addEventListener('input', render);
+    el('sort').addEventListener('change', render);
+    render();
+  </script>
+</body>
+</html>

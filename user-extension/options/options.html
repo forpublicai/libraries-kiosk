@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>PublicPass User Settings</title>
+    <link rel="stylesheet" href="../shared.css" />
+  </head>
+  <body>
+    <main>
+      <h1>User Settings</h1>
+      <form id="settings-form" class="card">
+        <label>
+          Kiosk Name
+          <input type="text" id="current-username" required />
+        </label>
+        <button type="submit">Save</button>
+        <div id="status" role="status" aria-live="polite"></div>
+      </form>
+
+      <section class="identity card" aria-live="polite">
+        <h2>Current ID</h2>
+        <p id="identity-status">Checking identity…</p>
+      </section>
+    </main>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

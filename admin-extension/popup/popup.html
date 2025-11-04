@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>PublicPass Admin</title>
+    <link rel="stylesheet" href="../shared.css" />
+    <style>
+      body { min-width: 380px; min-height: 520px; }
+      .list { border: var(--border-width) solid #dadce0; border-radius: 4px; padding: 8px; max-height: 220px; overflow: auto; background: #fff; }
+      .row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 6px 0; border-bottom: 1px dashed #eee; }
+      .row:last-child { border: none; }
+      button.small { font-size: 12px; padding: 4px 6px; }
+      .mono { font-family: ui-monospace, Menlo, monospace; }
+      .hint { font-size: 12px; color: #5f6368; }
+      form label { display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
+      input, select { font-size: 14px; padding: 8px; border: var(--border-width) solid #c3c4c7; border-radius: 4px; width: 100%; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="frame">
+        <div class="tiles-grid">
+          <div class="tile tile--wide">
+            <h1 style="margin:0 0 8px;">Admin Console</h1>
+            <form id="share-form">
+              <label>
+                Recipient username
+                <input type="text" id="recipient-username" required />
+              </label>
+              <label>
+                Session duration
+                <select id="session-duration">
+                  <option value="0">Until manually logout</option>
+                  <option value="1800">30 minutes</option>
+                  <option value="7200">2 hours</option>
+                  <option value="28800">8 hours</option>
+                </select>
+              </label>
+              <button id="send-btn" type="submit">Send Session</button>
+              <div class="hint">Sends the current tab's session to the inbox.</div>
+            </form>
+          </div>
+
+          <div class="tile tile--wide">
+            <div style="display:flex; gap:8px; align-items:center; justify-content:space-between;">
+              <h2 style="margin:0;">Requests</h2>
+              <button id="refresh-requests" class="small" type="button">Refresh</button>
+            </div>
+            <div id="requests" class="list" aria-live="polite" style="margin-top:8px;"></div>
+          </div>
+
+          <div class="tile tile--wide" style="display:flex; justify-content:flex-end;">
+            <a href="#" id="open-options">Settings</a>
+          </div>
+          <img src="./imgs/icon.png" alt="Public AI Logo" style="height:16px; margin-right:0; margin-left:auto;"/>
+                   
+          </div>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

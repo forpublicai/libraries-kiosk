@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>PublicPass User</title>
+    <link rel="stylesheet" href="../shared.css" />
+    <style>
+      body { min-width: 360px; min-height: 340px; }
+      .hint { font-size: 12px; color: #5f6368; }
+      button { margin-top: 8px; }
+      label { display:flex; flex-direction:column; gap:6px; }
+      input { font-size: 14px; padding: 8px; border: var(--border-width) solid #c3c4c7; border-radius:4px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="frame">
+        <div class="tiles-grid">
+          <div class="request-card">
+            <h1 style="margin:0 0 8px;">PublicPass</h1>
+            <button id="check-inbox" type="button">Check now</button>
+            <div class="hint">Fetches any pending sessions.</div>
+            <div id="pending-indicator" class="hint" aria-live="polite" style="display:none; color: var(--red)">You have pending sessions.</div>
+          </div>
+          <div class="request-card">
+            <label>
+              Admin username
+              <input type="text" id="admin-username" placeholder="Choose who to notify" />
+            </label>
+            <button id="request-access" type="button">Request access for this page</button>
+            <div id="request-status" class="hint" aria-live="polite"></div>
+            <div class="hint">Sends a request to admins for the current site.</div>
+          </div>
+          <div class="request-card" style="display:flex; justify-content:flex-end;">
+            <a href="#" id="open-options">Settings</a>
+          </div>
+
+        </div>
+
+      </div>
+      <img src="./imgs/icon.png" alt="Public AI Logo" style="display:block; height:16px; margin-right:0; margin-left:auto;"/>
+
+    </main>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

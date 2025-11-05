@@ -1,6 +1,2 @@
-/* Minimal banner styling*/
-#public-session-banner{position:sticky;top:0;left:0;right:0;z-index:2147483647;display:block}
-#public-session-banner .ps-wrapper{pointer-events:auto}
-body.public-session-banner-active{scroll-padding-top:48px}
 /* Minimized tappable indicator */
-#public-session-mini{position:fixed;top:0;left:0;right:0;height:4px;background:#ef3c24;z-index:2147483647;cursor:pointer;display:none}
+#public-session-mini{position:fixed;top:0;left:0;right:0;height:4px;background:#ef3c24;z-index:2147483647;cursor:pointer}

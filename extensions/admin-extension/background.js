@@ -15,6 +15,51 @@ const LOCAL_STATE_DEFAULT = {
 	registeredUsername: null
 };
 
+function cloneCookieForTransfer(cookie, fallbackHost) {
+	const partitionKey = cookie.partitionKey ? { ...cookie.partitionKey } : undefined;
+	return {
+		name: cookie.name,
+		value: cookie.value,
+		domain: cookie.domain || undefined,
+		path: cookie.path || "/",
+		secure: cookie.secure,
+		httpOnly: cookie.httpOnly,
+		sameSite: cookie.sameSite,
+		expirationDate: cookie.expirationDate,
+		storeId: cookie.storeId,
+		firstPartyDomain: cookie.firstPartyDomain,
+		sameParty: cookie.sameParty,
+		priority: cookie.priority,
+		partitionKey,
+		hostOnly: cookie.hostOnly,
+		session: cookie.session,
+		domainFallback: fallbackHost
+	};
+}
+
+async function collectCookies(urlObject) {
+	const [byUrl, byDomain] = await Promise.all([
+		chrome.cookies.getAll({ url: urlObject.href }),
+		chrome.cookies.getAll({ domain: urlObject.hostname })
+	]);
+	const combined = [...byUrl, ...byDomain];
+	const seen = new Map();
+	for (const cookie of combined) {
+		const keyParts = [
+			cookie.name,
+			cookie.domain || urlObject.hostname,
+			cookie.path || "/",
+			cookie.storeId || "default",
+			cookie.partitionKey ? JSON.stringify(cookie.partitionKey) : ""
+		];
+		const key = keyParts.join("|");
+		if (!seen.has(key)) {
+			seen.set(key, cloneCookieForTransfer(cookie, urlObject.hostname));
+		}
+	}
+	return Array.from(seen.values());
+}
+
 async function getSettings() {
 	return chrome.storage.sync.get(DEFAULT_SETTINGS);
 }
@@ -165,7 +210,7 @@ async function captureSessionData(tab) {
 		throw new Error("Active tab must be an http(s) page.");
 	}
 	const url = new URL(tab.url);
-	const cookies = await chrome.cookies.getAll({ url: url.origin + url.pathname });
+	const cookies = await collectCookies(url);
 	const storage = await collectStorage(tab.id);
 
 	return {

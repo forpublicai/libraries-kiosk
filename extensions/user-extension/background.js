@@ -114,17 +114,22 @@ async function setCookies(cookies, referenceOrigin) {
   const referenceUrl = referenceOrigin ? new URL(referenceOrigin) : null;
   for (const cookie of cookies) {
     try {
-      const domain = cookie.domain ? cookie.domain.replace(/^\./, "") : referenceUrl?.hostname;
+      const fallbackHost = cookie.domainFallback || referenceUrl?.hostname || null;
+      const domain = cookie.domain ? cookie.domain.replace(/^\./, "") : fallbackHost;
       const path = cookie.path || "/";
-      const scheme = cookie.secure ? "https" : "http";
-      const host = domain || referenceUrl?.hostname;
+      const scheme = cookie.secure ? "https" : (referenceUrl?.protocol?.replace(':', '') || "http");
+      const host = domain || fallbackHost;
       if (!host) continue;
       const url = `${scheme}://${host}${path.startsWith("/") ? path : `/${path}`}`;
       const setOptions = { url, name: cookie.name, value: cookie.value, path, secure: !!cookie.secure, httpOnly: !!cookie.httpOnly };
-      if (cookie.domain) setOptions.domain = cookie.domain;
-      if (cookie.expirationDate) setOptions.expirationDate = cookie.expirationDate;
+      if (cookie.domain && cookie.hostOnly !== true) setOptions.domain = cookie.domain;
+      if (!cookie.session && cookie.expirationDate) setOptions.expirationDate = cookie.expirationDate;
       if (cookie.sameSite && cookie.sameSite !== "unspecified") setOptions.sameSite = cookie.sameSite;
       if (cookie.storeId) setOptions.storeId = cookie.storeId;
+      if (cookie.firstPartyDomain) setOptions.firstPartyDomain = cookie.firstPartyDomain;
+      if (typeof cookie.sameParty === "boolean") setOptions.sameParty = cookie.sameParty;
+      if (cookie.priority) setOptions.priority = cookie.priority;
+      if (cookie.partitionKey) setOptions.partitionKey = cookie.partitionKey;
       await chrome.cookies.set(setOptions);
     } catch (_) {}
   }
@@ -156,7 +161,16 @@ async function maybeScheduleLogout(bundle, sessionData, idOverride) {
   const cleanup = {
     id: jobId,
     targetOrigin: sessionData.targetOrigin || new URL(sessionData.url).origin,
-    cookies: (sessionData.cookies || []).map(c => ({ name: c.name, domain: c.domain, path: c.path || '/', secure: !!c.secure })),
+    cookies: (sessionData.cookies || []).map((c) => ({
+      name: c.name,
+      domain: c.domain,
+      path: c.path || '/',
+      secure: !!c.secure,
+      storeId: c.storeId,
+      partitionKey: c.partitionKey,
+      domainFallback: c.domainFallback,
+      session: c.session
+    })),
     localStorageKeys: (sessionData.localStorage || []).map(([k]) => k),
     sessionStorageKeys: (sessionData.sessionStorage || []).map(([k]) => k)
   };
@@ -176,7 +190,10 @@ async function logoutOriginNow(targetOrigin) {
     for (const c of all) {
       const scheme = c.secure ? 'https' : 'http';
       const url = `${scheme}://${(c.domain || host).replace(/^\./,'')}${c.path || '/'}`;
-      try { await chrome.cookies.remove({ url, name: c.name }); } catch (_) {}
+      const removeOptions = { url, name: c.name };
+      if (c.storeId) removeOptions.storeId = c.storeId;
+      if (c.partitionKey) removeOptions.partitionKey = c.partitionKey;
+      try { await chrome.cookies.remove(removeOptions); } catch (_) {}
     }
     const temp = await chrome.tabs.create({ url: targetOrigin, active: false });
     await waitForTabComplete(temp.id);
@@ -272,9 +289,12 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     try {
       for (const c of job.cookies || []) {
         const scheme = c.secure ? 'https' : 'http';
-        const host = c.domain ? c.domain.replace(/^\./, '') : new URL(job.targetOrigin).hostname;
+        const host = c.domain ? c.domain.replace(/^\./, '') : (c.domainFallback || new URL(job.targetOrigin).hostname);
         const url = `${scheme}://${host}${c.path || '/'}`;
-        try { await chrome.cookies.remove({ url, name: c.name }); } catch (e) {}
+        const removeOptions = { url, name: c.name };
+        if (c.storeId) removeOptions.storeId = c.storeId;
+        if (c.partitionKey) removeOptions.partitionKey = c.partitionKey;
+        try { await chrome.cookies.remove(removeOptions); } catch (e) {}
       }
       const temp = await chrome.tabs.create({ url: job.targetOrigin, active: false });
       await waitForTabComplete(temp.id);

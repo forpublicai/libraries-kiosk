@@ -150,7 +150,7 @@ body{
 .card--chatbot{ grid-column: span 6; grid-row: span 2; }
 .card--midjourney{ grid-column: span 6; grid-row: span 2; }
 .card--suno{ grid-column: span 4; grid-row: span 2; }
-.card--nano{ grid-column: span 8; grid-row: span 2; }
+.card--edison{ grid-column: span 8; grid-row: span 2; }
 .card--runway{ grid-column: span 5; grid-row: span 2; }
 .card--presentations{ grid-column: span 9; grid-row: span 2; }
 /* New bottom row cards */
@@ -306,13 +306,13 @@ body{
 @media (max-width: 1100px){
   .services-grid{ grid-template-columns: repeat(8, 1fr); grid-auto-rows: 100px; }
   .card--replit, .card--chatbot, .card--midjourney, .card--suno, .card--runway, .card--datasets, .card--feature{ grid-column: span 4; grid-row: span 3; }
-  .card--nano{ grid-column: span 8; grid-row: span 4; }
+  .card--edison{ grid-column: span 8; grid-row: span 4; }
   .card--presentations{ grid-column: span 8; grid-row: span 3; }
 }
 
 @media (max-width: 720px){
   .services-grid{ grid-template-columns: repeat(2, 1fr); grid-auto-rows: 110px; }
   .card--replit, .card--chatbot, .card--midjourney, .card--suno, .card--runway, .card--presentations, .card--datasets, .card--feature{ grid-column: span 2; grid-row: span 2; }
-  .card--nano{ grid-column: span 2; grid-row: span 3; }
+  .card--edison{ grid-column: span 2; grid-row: span 3; }
   .service-title--xl{ font-size: clamp(32px, 10vw, 64px); }
 }

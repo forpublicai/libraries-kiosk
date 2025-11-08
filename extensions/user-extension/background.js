@@ -325,6 +325,52 @@ try {
 } catch (_) {}
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Character counting integration
+  if (message?.type === 'ps_chars') {
+    try {
+      const tab = sender?.tab;
+      const windowId = tab?.windowId;
+      if (typeof windowId !== 'number') return; // need window context
+      const LIMIT = 1000; // could be moved to config or storage later
+      const key = '__ppWindowCharState';
+      const state = (globalThis[key] = globalThis[key] || new Map());
+      let entry = state.get(windowId);
+      if (!entry) { entry = { count: 0, blocked: false }; state.set(windowId, entry); }
+      if (entry.blocked) return; // already blocked, ignore further chars
+      const inc = Number(message.chars || 0);
+      if (inc > 0) entry.count += inc;
+      const remaining = Math.max(0, LIMIT - entry.count);
+      // Broadcast remaining to all tabs in this window
+      chrome.tabs.query({ windowId }, (tabs) => {
+        for (const t of tabs) {
+          try { chrome.tabs.sendMessage(t.id, { type: 'ps_remaining', remaining, limit: LIMIT }); } catch (_) {}
+        }
+      });
+      if (entry.count >= LIMIT) {
+        entry.blocked = true;
+        chrome.tabs.query({ windowId }, (tabs) => {
+          for (const t of tabs) {
+            try { chrome.tabs.sendMessage(t.id, { type: 'ps_block', limit: LIMIT }); } catch (_) {}
+          }
+        });
+      }
+    } catch (e) { /* swallow */ }
+    return; // no response needed
+  }
+  if (message?.type === 'ps_request_state') {
+    try {
+      const tab = sender?.tab;
+      const windowId = tab?.windowId;
+      const LIMIT = 1000;
+      const key = '__ppWindowCharState';
+      const state = (globalThis[key] = globalThis[key] || new Map());
+      const entry = state.get(windowId) || { count: 0, blocked: false };
+      const remaining = Math.max(0, LIMIT - entry.count);
+      sendResponse({ remaining, blocked: entry.blocked, limit: LIMIT });
+      return true; // async response handled
+    } catch (_) { sendResponse({ remaining: 1000, blocked: false, limit: 1000 }); }
+    return true;
+  }
   if (message?.type === 'check-inbox-now') {
     pollInboxOnce().then(() => sendResponse({ ok: true })).catch((e) => sendResponse({ error: e.message }));
     return true;

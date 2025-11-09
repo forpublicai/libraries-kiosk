@@ -41,7 +41,38 @@ const LOCAL_STATE_DEFAULT = {
 };
 
 const processedTokens = new Set();
-const processedInboxIds = new Set();
+let processedInboxIds = new Set();
+
+// Load processed inbox IDs from storage on startup
+(async () => {
+  try {
+    const stored = await storageGet('local', { processedInboxIds: [] });
+    processedInboxIds = new Set(stored.processedInboxIds || []);
+    // Keep only the most recent 100 IDs to prevent infinite growth
+    if (processedInboxIds.size > 100) {
+      const arr = Array.from(processedInboxIds);
+      processedInboxIds = new Set(arr.slice(-100));
+      await storageSet('local', { processedInboxIds: Array.from(processedInboxIds) });
+    }
+  } catch (e) {
+    console.warn('Failed to load processed inbox IDs', e);
+  }
+})();
+
+// Helper to persist processedInboxIds
+async function saveProcessedInboxIds() {
+  try {
+    const arr = Array.from(processedInboxIds);
+    // Keep only the most recent 100 IDs
+    const toSave = arr.slice(-100);
+    await storageSet('local', { processedInboxIds: toSave });
+    if (arr.length > 100) {
+      processedInboxIds = new Set(toSave);
+    }
+  } catch (e) {
+    console.warn('Failed to save processed inbox IDs', e);
+  }
+}
 
 async function getSettings() {
   return storageGet('sync', DEFAULT_SETTINGS);
@@ -337,6 +368,7 @@ async function pollInboxOnce() {
           const origin = item.meta?.targetOrigin;
           if (origin) { await logoutOriginNow(origin); await notify('PublicPass', 'Session revoked by admin. You have been logged out.'); }
           processedInboxIds.add(item.id);
+          await saveProcessedInboxIds();
           toAck.push(item.id);
           continue;
         }
@@ -347,19 +379,33 @@ async function pollInboxOnce() {
         const targetUrl = sessionData.url || `${sessionData.targetOrigin}${sessionData.targetPath || '/'}`;
         const newTab = await new Promise((resolve, reject) => {
           chrome.tabs.create({ url: targetUrl, active: true }, (tab) => {
-            if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
-            else resolve(tab);
+            if (chrome.runtime.lastError) {
+              console.warn('Tab create error:', chrome.runtime.lastError);
+              reject(chrome.runtime.lastError);
+            } else if (!tab) {
+              console.warn('Tab create returned no tab');
+              reject(new Error('Tab creation failed'));
+            } else {
+              resolve(tab);
+            }
           });
         });
-        await waitForTabComplete(newTab.id);
-        await restoreStorage(newTab.id, { localStorage: sessionData.localStorage, sessionStorage: sessionData.sessionStorage });
+        if (newTab && newTab.id) {
+          await waitForTabComplete(newTab.id);
+          await restoreStorage(newTab.id, { localStorage: sessionData.localStorage, sessionStorage: sessionData.sessionStorage });
+        }
         await maybeScheduleLogout({ meta: { sessionDurationSec: item.meta?.sessionDurationSec || 0 }, token: `inbox:${item.id}` }, sessionData, `inbox:${item.id}`);
         if (item.meta?.sessionId) { try { await apiFetch(baseUrl, `/v1/sessions/${encodeURIComponent(item.meta.sessionId)}/accepted`, { method: 'POST' }); } catch(_){} }
         processedInboxIds.add(item.id);
+        await saveProcessedInboxIds();
         toAck.push(item.id);
         await notify('PublicPass', `Session received from ${item.meta?.sender || 'someone'}`);
       } catch (e) {
         console.warn('Failed to process inbox item', item.id, e);
+        // Still acknowledge the item to prevent reprocessing
+        processedInboxIds.add(item.id);
+        await saveProcessedInboxIds();
+        toAck.push(item.id);
       }
     }
     if (toAck.length) await apiFetch(baseUrl, '/v1/inbox/ack', { method: 'POST', body: JSON.stringify({ recipient: username, ids: toAck }) });

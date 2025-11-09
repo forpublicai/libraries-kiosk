@@ -167,7 +167,10 @@ async function waitForTabComplete(tabId) {
 
 async function setCookies(cookies, referenceOrigin) {
   if (!Array.isArray(cookies)) return;
+  console.log('[setCookies] Setting', cookies.length, 'cookies for', referenceOrigin);
   const referenceUrl = referenceOrigin ? new URL(referenceOrigin) : null;
+  let successCount = 0;
+  let failCount = 0;
   for (const cookie of cookies) {
     try {
       const fallbackHost = cookie.domainFallback || referenceUrl?.hostname || null;
@@ -175,7 +178,11 @@ async function setCookies(cookies, referenceOrigin) {
       const path = cookie.path || "/";
       const scheme = cookie.secure ? "https" : (referenceUrl?.protocol?.replace(':', '') || "http");
       const host = domain || fallbackHost;
-      if (!host) continue;
+      if (!host) {
+        console.warn('[setCookies] Skipping cookie - no host:', cookie.name);
+        failCount++;
+        continue;
+      }
       const url = `${scheme}://${host}${path.startsWith("/") ? path : `/${path}`}`;
       const setOptions = { url, name: cookie.name, value: cookie.value, path, secure: !!cookie.secure, httpOnly: !!cookie.httpOnly };
       if (cookie.domain && cookie.hostOnly !== true) setOptions.domain = cookie.domain;
@@ -188,12 +195,22 @@ async function setCookies(cookies, referenceOrigin) {
       if (cookie.partitionKey) setOptions.partitionKey = cookie.partitionKey;
       await new Promise((resolve, reject) => {
         chrome.cookies.set(setOptions, (result) => {
-          if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
-          else resolve(result);
+          if (chrome.runtime.lastError) {
+            console.warn('[setCookies] Failed to set cookie', cookie.name, ':', chrome.runtime.lastError.message);
+            reject(chrome.runtime.lastError);
+          } else {
+            console.log('[setCookies] Successfully set cookie:', cookie.name, 'for', url);
+            resolve(result);
+          }
         });
       });
-    } catch (_) {}
+      successCount++;
+    } catch (e) {
+      console.warn('[setCookies] Error setting cookie', cookie.name, ':', e);
+      failCount++;
+    }
   }
+  console.log('[setCookies] Done. Success:', successCount, 'Failed:', failCount);
 }
 
 async function restoreStorage(tabId, storageData) {
@@ -363,6 +380,7 @@ async function pollInboxOnce() {
     for (const item of res.items || []) {
       if (processedInboxIds.has(item.id)) continue;
       try {
+        console.log('[pollInboxOnce] Processing inbox item:', item.id, 'from:', item.meta?.sender);
         const type = (item.meta?.type || 'share');
         if (type === 'revoke') {
           const origin = item.meta?.targetOrigin;
@@ -372,11 +390,24 @@ async function pollInboxOnce() {
           toAck.push(item.id);
           continue;
         }
+        console.log('[pollInboxOnce] Deserializing cipher bundle...');
         const bundle = deserializeCipher(item.cipher);
+        console.log('[pollInboxOnce] Bundle:', { alg: bundle.alg, hasIv: !!bundle.iv, hasEpk: !!bundle.epk, hasCiphertext: !!bundle.ciphertext });
         const state = await ensureIdentity();
+        console.log('[pollInboxOnce] Decrypting payload...');
         const sessionData = await decryptPayload({ bundle, recipientPrivateJwk: state.identityPrivateKey, targetOrigin: item.meta?.targetOrigin || bundle.targetOrigin });
+        console.log('[pollInboxOnce] Session data decrypted:', { 
+          targetOrigin: sessionData.targetOrigin, 
+          url: sessionData.url,
+          cookieCount: sessionData.cookies?.length || 0,
+          hasLocalStorage: !!sessionData.localStorage,
+          hasSessionStorage: !!sessionData.sessionStorage
+        });
+        console.log('[pollInboxOnce] Setting cookies...');
         await setCookies(sessionData.cookies, sessionData.targetOrigin || sessionData.url);
+        console.log('[pollInboxOnce] Cookies set. Creating tab...');
         const targetUrl = sessionData.url || `${sessionData.targetOrigin}${sessionData.targetPath || '/'}`;
+        console.log('[pollInboxOnce] Target URL:', targetUrl);
         const newTab = await new Promise((resolve, reject) => {
           chrome.tabs.create({ url: targetUrl, active: true }, (tab) => {
             if (chrome.runtime.lastError) {
@@ -390,9 +421,13 @@ async function pollInboxOnce() {
             }
           });
         });
+        console.log('[pollInboxOnce] Tab created:', newTab?.id);
         if (newTab && newTab.id) {
+          console.log('[pollInboxOnce] Waiting for tab to complete...');
           await waitForTabComplete(newTab.id);
+          console.log('[pollInboxOnce] Tab complete. Restoring storage...');
           await restoreStorage(newTab.id, { localStorage: sessionData.localStorage, sessionStorage: sessionData.sessionStorage });
+          console.log('[pollInboxOnce] Storage restored.');
         }
         await maybeScheduleLogout({ meta: { sessionDurationSec: item.meta?.sessionDurationSec || 0 }, token: `inbox:${item.id}` }, sessionData, `inbox:${item.id}`);
         if (item.meta?.sessionId) { try { await apiFetch(baseUrl, `/v1/sessions/${encodeURIComponent(item.meta.sessionId)}/accepted`, { method: 'POST' }); } catch(_){} }

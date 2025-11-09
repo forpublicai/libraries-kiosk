@@ -194,19 +194,30 @@ async function registerIdentityIfNeeded() {
 }
 
 async function ensureContentScript(tabId) {
-	try {
-		await chrome.tabs.executeScript(tabId, {
+	return new Promise((resolve, reject) => {
+		chrome.tabs.executeScript(tabId, {
 			file: "content/capture.js"
+		}, (result) => {
+			if (chrome.runtime.lastError) {
+				// Ignore "already injected" type errors
+				if (chrome.runtime.lastError.message && 
+				    /Loading of script failed or timed out/i.test(chrome.runtime.lastError.message)) {
+					resolve();
+				} else {
+					reject(new Error(chrome.runtime.lastError.message));
+				}
+			} else {
+				resolve(result);
+			}
 		});
-	} catch (error) {
-		if (error?.message && !/Loading of script failed or timed out/i.test(error.message)) {
-			throw error;
-		}
-	}
+	});
 }
 
 async function collectStorage(tabId) {
 	await ensureContentScript(tabId);
+	// Small delay to ensure content script is ready (Firefox MV2 quirk)
+	await new Promise(resolve => setTimeout(resolve, 100));
+	
 	return new Promise((resolve, reject) => {
 		chrome.tabs.sendMessage(tabId, { type: "collect-storage" }, (response) => {
 			if (chrome.runtime.lastError) {
@@ -250,52 +261,75 @@ async function captureSessionData(tab) {
 }
 
 async function handleShareSession(payload) {
-	const settings = await getSettings();
-	const baseUrl = settings.serverBaseUrl || DEFAULT_SERVER_BASE_URL;
-	const username = settings.currentUsername?.trim();
-	if (!username) {
-		throw new Error("Set your username in extension options.");
-	}
-
-	const state = await registerIdentityIfNeeded();
-
-	const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-	if (!tab) {
-		throw new Error("No active tab found.");
-	}
-
-	const sessionData = await captureSessionData(tab);
-
-	const recipientRecord = await apiFetch(baseUrl, `/v1/users/${encodeURIComponent(payload.recipientUsername)}`);
-	const cipherBundle = await encryptPayload({
-		payload: sessionData,
-		senderPrivateJwk: state.identityPrivateKey,
-		senderPublicJwk: state.identityPublicKey,
-		recipientPublicJwk: recipientRecord.publicKey,
-		targetOrigin: sessionData.targetOrigin
-	});
-
-	const body = {
-		recipient: payload.recipientUsername,
-		cipher: serializeCipher(cipherBundle),
-		alg: cipherBundle.alg,
-		cmp: cipherBundle.cmp,
-		ttlSec: Number(settings.ttlSeconds) || 600,
-		meta: {
-			targetOrigin: sessionData.targetOrigin,
-			targetPath: sessionData.targetPath,
-			comment: payload.comment?.trim() || "",
-			sender: username,
-			sessionDurationSec: Number(payload.sessionDurationSec) || 0
+	console.log('[PublicPass] Starting share session...', payload);
+	try {
+		const settings = await getSettings();
+		console.log('[PublicPass] Settings loaded:', { username: settings.currentUsername });
+		const baseUrl = settings.serverBaseUrl || DEFAULT_SERVER_BASE_URL;
+		const username = settings.currentUsername?.trim();
+		if (!username) {
+			throw new Error("Set your username in extension options.");
 		}
-	};
 
-	await apiFetch(baseUrl, "/v1/inbox", {
-		method: "POST",
-		body: JSON.stringify(body)
-	});
+		console.log('[PublicPass] Registering identity...');
+		const state = await registerIdentityIfNeeded();
+		console.log('[PublicPass] Identity registered');
 
-	return { sent: true };
+		const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+		if (!tab) {
+			throw new Error("No active tab found.");
+		}
+		console.log('[PublicPass] Active tab:', tab.url);
+
+		console.log('[PublicPass] Capturing session data...');
+		const sessionData = await captureSessionData(tab);
+		console.log('[PublicPass] Session captured:', { 
+			cookies: sessionData.cookies.length,
+			localStorage: sessionData.localStorage.length,
+			sessionStorage: sessionData.sessionStorage.length
+		});
+
+		console.log('[PublicPass] Fetching recipient public key...');
+		const recipientRecord = await apiFetch(baseUrl, `/v1/users/${encodeURIComponent(payload.recipientUsername)}`);
+		console.log('[PublicPass] Recipient found');
+
+		console.log('[PublicPass] Encrypting payload...');
+		const cipherBundle = await encryptPayload({
+			payload: sessionData,
+			senderPrivateJwk: state.identityPrivateKey,
+			senderPublicJwk: state.identityPublicKey,
+			recipientPublicJwk: recipientRecord.publicKey,
+			targetOrigin: sessionData.targetOrigin
+		});
+		console.log('[PublicPass] Payload encrypted');
+
+		const body = {
+			recipient: payload.recipientUsername,
+			cipher: serializeCipher(cipherBundle),
+			alg: cipherBundle.alg,
+			cmp: cipherBundle.cmp,
+			ttlSec: Number(settings.ttlSeconds) || 600,
+			meta: {
+				targetOrigin: sessionData.targetOrigin,
+				targetPath: sessionData.targetPath,
+				comment: payload.comment?.trim() || "",
+				sender: username,
+				sessionDurationSec: Number(payload.sessionDurationSec) || 0
+			}
+		};
+
+		console.log('[PublicPass] Sending to inbox...');
+		await apiFetch(baseUrl, "/v1/inbox", {
+			method: "POST",
+			body: JSON.stringify(body)
+		});
+		console.log('[PublicPass] Session sent successfully!');
+
+		return { sent: true };
+	} catch (error) {
+		console.error('[PublicPass] Share session failed:', error);
+		throw error;
+	}
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

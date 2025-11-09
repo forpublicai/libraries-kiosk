@@ -155,7 +155,12 @@ async function setCookies(cookies, referenceOrigin) {
       if (typeof cookie.sameParty === "boolean") setOptions.sameParty = cookie.sameParty;
       if (cookie.priority) setOptions.priority = cookie.priority;
       if (cookie.partitionKey) setOptions.partitionKey = cookie.partitionKey;
-      await chrome.cookies.set(setOptions);
+      await new Promise((resolve, reject) => {
+        chrome.cookies.set(setOptions, (result) => {
+          if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+          else resolve(result);
+        });
+      });
     } catch (_) {}
   }
 }
@@ -221,26 +226,53 @@ async function logoutOriginNow(targetOrigin) {
   try {
     const u = new URL(targetOrigin);
     const host = u.hostname;
-    const all = await chrome.cookies.getAll({ domain: host });
+    const all = await new Promise((resolve, reject) => {
+      chrome.cookies.getAll({ domain: host }, (cookies) => {
+        if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+        else resolve(cookies);
+      });
+    });
     for (const c of all) {
       const scheme = c.secure ? 'https' : 'http';
       const url = `${scheme}://${(c.domain || host).replace(/^\./,'')}${c.path || '/'}`;
       const removeOptions = { url, name: c.name };
       if (c.storeId) removeOptions.storeId = c.storeId;
       if (c.partitionKey) removeOptions.partitionKey = c.partitionKey;
-      try { await chrome.cookies.remove(removeOptions); } catch (_) {}
+      try {
+        await new Promise((resolve, reject) => {
+          chrome.cookies.remove(removeOptions, () => {
+            if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+            else resolve();
+          });
+        });
+      } catch (_) {}
     }
-    const temp = await chrome.tabs.create({ url: targetOrigin, active: false });
-    await waitForTabComplete(temp.id);
-    await chrome.tabs.executeScript(temp.id, {
-      code: `
-        (function() {
-          try { localStorage.clear(); } catch(_){}
-          try { sessionStorage.clear(); } catch(_){}
-        })();
-      `
+    const temp = await new Promise((resolve, reject) => {
+      chrome.tabs.create({ url: targetOrigin, active: false }, (tab) => {
+        if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+        else resolve(tab);
+      });
     });
-    await chrome.tabs.remove(temp.id);
+    await waitForTabComplete(temp.id);
+    await new Promise((resolve, reject) => {
+      chrome.tabs.executeScript(temp.id, {
+        code: `
+          (function() {
+            try { localStorage.clear(); } catch(_){}
+            try { sessionStorage.clear(); } catch(_){}
+          })();
+        `
+      }, () => {
+        if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+        else resolve();
+      });
+    });
+    await new Promise((resolve, reject) => {
+      chrome.tabs.remove(temp.id, () => {
+        if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+        else resolve();
+      });
+    });
   } catch (_) {}
 }
 
@@ -263,14 +295,26 @@ async function handleSessionAcceptance(details) {
     const sessionData = await decryptPayload({ bundle, recipientPrivateJwk: state.identityPrivateKey, targetOrigin: shareResponse.meta?.targetOrigin || bundle.targetOrigin });
     await setCookies(sessionData.cookies, sessionData.targetOrigin || sessionData.url);
     const targetUrl = sessionData.url || `${sessionData.targetOrigin}${sessionData.targetPath || '/'}`;
-    const newTab = await chrome.tabs.create({ url: targetUrl, active: true });
+    const newTab = await new Promise((resolve, reject) => {
+      chrome.tabs.create({ url: targetUrl, active: true }, (tab) => {
+        if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+        else resolve(tab);
+      });
+    });
     await waitForTabComplete(newTab.id);
     try { await restoreStorage(newTab.id, { localStorage: sessionData.localStorage, sessionStorage: sessionData.sessionStorage }); }
     catch (_) { try { await notify('PublicPass', 'Storage restore failed; cookies applied'); } catch(_){} }
     await apiFetch(baseUrl, `/v1/shares/${encodeURIComponent(token)}/consume`, { method: "POST" });
     await maybeScheduleLogout(bundle, sessionData);
     await notify("PublicPass", "Session accepted. You should be logged in.");
-    try { await chrome.tabs.remove(details.tabId); } catch (_) {}
+    try {
+      await new Promise((resolve, reject) => {
+        chrome.tabs.remove(details.tabId, () => {
+          if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+          else resolve();
+        });
+      });
+    } catch (_) {}
   } catch (error) {
     await notify("PublicPass", `Failed to accept session: ${error.message}`);
     processedTokens.delete(token);
@@ -301,7 +345,12 @@ async function pollInboxOnce() {
         const sessionData = await decryptPayload({ bundle, recipientPrivateJwk: state.identityPrivateKey, targetOrigin: item.meta?.targetOrigin || bundle.targetOrigin });
         await setCookies(sessionData.cookies, sessionData.targetOrigin || sessionData.url);
         const targetUrl = sessionData.url || `${sessionData.targetOrigin}${sessionData.targetPath || '/'}`;
-        const newTab = await chrome.tabs.create({ url: targetUrl, active: true });
+        const newTab = await new Promise((resolve, reject) => {
+          chrome.tabs.create({ url: targetUrl, active: true }, (tab) => {
+            if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+            else resolve(tab);
+          });
+        });
         await waitForTabComplete(newTab.id);
         await restoreStorage(newTab.id, { localStorage: sessionData.localStorage, sessionStorage: sessionData.sessionStorage });
         await maybeScheduleLogout({ meta: { sessionDurationSec: item.meta?.sessionDurationSec || 0 }, token: `inbox:${item.id}` }, sessionData, `inbox:${item.id}`);
@@ -336,21 +385,43 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         const removeOptions = { url, name: c.name };
         if (c.storeId) removeOptions.storeId = c.storeId;
         if (c.partitionKey) removeOptions.partitionKey = c.partitionKey;
-        try { await chrome.cookies.remove(removeOptions); } catch (e) {}
+        try {
+          await new Promise((resolve, reject) => {
+            chrome.cookies.remove(removeOptions, () => {
+              if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+              else resolve();
+            });
+          });
+        } catch (e) {}
       }
-      const temp = await chrome.tabs.create({ url: job.targetOrigin, active: false });
-      await waitForTabComplete(temp.id);
-      await chrome.tabs.executeScript(temp.id, {
-        code: `
-          (function() {
-            const localKeys = ${JSON.stringify(job.localStorageKeys || [])};
-            const sessionKeys = ${JSON.stringify(job.sessionStorageKeys || [])};
-            try { localKeys.forEach(k => window.localStorage.removeItem(k)); } catch (_) {}
-            try { sessionKeys.forEach(k => window.sessionStorage.removeItem(k)); } catch (_) {}
-          })();
-        `
+      const temp = await new Promise((resolve, reject) => {
+        chrome.tabs.create({ url: job.targetOrigin, active: false }, (tab) => {
+          if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+          else resolve(tab);
+        });
       });
-      await chrome.tabs.remove(temp.id);
+      await waitForTabComplete(temp.id);
+      await new Promise((resolve, reject) => {
+        chrome.tabs.executeScript(temp.id, {
+          code: `
+            (function() {
+              const localKeys = ${JSON.stringify(job.localStorageKeys || [])};
+              const sessionKeys = ${JSON.stringify(job.sessionStorageKeys || [])};
+              try { localKeys.forEach(k => window.localStorage.removeItem(k)); } catch (_) {}
+              try { sessionKeys.forEach(k => window.sessionStorage.removeItem(k)); } catch (_) {}
+            })();
+          `
+        }, () => {
+          if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+          else resolve();
+        });
+      });
+      await new Promise((resolve, reject) => {
+        chrome.tabs.remove(temp.id, () => {
+          if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+          else resolve();
+        });
+      });
       await notify('PublicPass', 'Session auto-logout complete');
     } catch (e) { console.warn('Auto-logout failed', e); }
   }

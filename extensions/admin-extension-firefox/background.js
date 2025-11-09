@@ -63,10 +63,12 @@ function cloneCookieForTransfer(cookie, fallbackHost) {
 }
 
 async function collectCookies(urlObject) {
-	const [byUrl, byDomain] = await Promise.all([
-		chrome.cookies.getAll({ url: urlObject.href }),
-		chrome.cookies.getAll({ domain: urlObject.hostname })
-	]);
+	const byUrl = await new Promise((resolve) => {
+		chrome.cookies.getAll({ url: urlObject.href }, resolve);
+	});
+	const byDomain = await new Promise((resolve) => {
+		chrome.cookies.getAll({ domain: urlObject.hostname }, resolve);
+	});
 	const combined = [...byUrl, ...byDomain];
 	const seen = new Map();
 	for (const cookie of combined) {
@@ -293,7 +295,10 @@ async function handleShareSession(payload) {
 		const state = await registerIdentityIfNeeded();
 		console.log('[PublicPass] Identity registered');
 
-		const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+		const tabs = await new Promise((resolve) => {
+			chrome.tabs.query({ active: true, currentWindow: true }, resolve);
+		});
+		const tab = tabs[0];
 		if (!tab) {
 			throw new Error("No active tab found.");
 		}

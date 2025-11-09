@@ -188,7 +188,9 @@ async function setCookies(cookies, referenceOrigin) {
       if (cookie.domain && cookie.hostOnly !== true) setOptions.domain = cookie.domain;
       if (!cookie.session && cookie.expirationDate) setOptions.expirationDate = cookie.expirationDate;
       if (cookie.sameSite && cookie.sameSite !== "unspecified") setOptions.sameSite = cookie.sameSite;
-      if (cookie.storeId) setOptions.storeId = cookie.storeId;
+      // Skip storeId - Chrome uses numeric IDs ("0") which are invalid in Firefox
+      // Firefox will use the default store automatically
+      // if (cookie.storeId) setOptions.storeId = cookie.storeId;
       if (cookie.firstPartyDomain) setOptions.firstPartyDomain = cookie.firstPartyDomain;
       if (typeof cookie.sameParty === "boolean") setOptions.sameParty = cookie.sameParty;
       if (cookie.priority) setOptions.priority = cookie.priority;

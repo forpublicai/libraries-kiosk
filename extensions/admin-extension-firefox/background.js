@@ -194,19 +194,23 @@ async function registerIdentityIfNeeded() {
 }
 
 async function ensureContentScript(tabId) {
+	console.log('[PublicPass] Injecting content script into tab:', tabId);
 	return new Promise((resolve, reject) => {
 		chrome.tabs.executeScript(tabId, {
 			file: "content/capture.js"
 		}, (result) => {
 			if (chrome.runtime.lastError) {
+				const errMsg = chrome.runtime.lastError.message || '';
+				console.log('[PublicPass] Script injection error:', errMsg);
 				// Ignore "already injected" type errors
-				if (chrome.runtime.lastError.message && 
-				    /Loading of script failed or timed out/i.test(chrome.runtime.lastError.message)) {
+				if (/Loading of script failed or timed out/i.test(errMsg)) {
+					console.log('[PublicPass] Script injection failed (might already be injected)');
 					resolve();
 				} else {
-					reject(new Error(chrome.runtime.lastError.message));
+					reject(new Error(errMsg));
 				}
 			} else {
+				console.log('[PublicPass] Content script injected successfully:', result);
 				resolve(result);
 			}
 		});
@@ -214,12 +218,17 @@ async function ensureContentScript(tabId) {
 }
 
 async function collectStorage(tabId) {
+	console.log('[PublicPass] Ensuring content script for tab:', tabId);
 	await ensureContentScript(tabId);
 	// Small delay to ensure content script is ready (Firefox MV2 quirk)
 	await new Promise(resolve => setTimeout(resolve, 100));
 	
+	console.log('[PublicPass] Sending message to content script...');
 	return new Promise((resolve, reject) => {
 		chrome.tabs.sendMessage(tabId, { type: "collect-storage" }, (response) => {
+			console.log('[PublicPass] Content script response:', response);
+			console.log('[PublicPass] Runtime error:', chrome.runtime.lastError);
+			
 			if (chrome.runtime.lastError) {
 				reject(new Error(chrome.runtime.lastError.message));
 				return;
@@ -245,19 +254,28 @@ async function captureSessionData(tab) {
 		throw new Error("Active tab must be an http(s) page.");
 	}
 	const url = new URL(tab.url);
+	
+	console.log('[PublicPass] Collecting cookies...');
 	const cookies = await collectCookies(url);
+	console.log('[PublicPass] Cookies collected:', cookies.length);
+	
+	console.log('[PublicPass] Collecting storage...');
 	const storage = await collectStorage(tab.id);
+	console.log('[PublicPass] Storage collected:', storage);
 
-	return {
+	const sessionData = {
 		version: 1,
 		capturedAt: new Date().toISOString(),
 		targetOrigin: url.origin,
 		targetPath: url.pathname || "/",
 		url: tab.url,
 		cookies,
-		localStorage: storage.localStorage,
-		sessionStorage: storage.sessionStorage
+		localStorage: storage?.localStorage || [],
+		sessionStorage: storage?.sessionStorage || []
 	};
+	
+	console.log('[PublicPass] Full session data:', sessionData);
+	return sessionData;
 }
 
 async function handleShareSession(payload) {
@@ -284,9 +302,10 @@ async function handleShareSession(payload) {
 		console.log('[PublicPass] Capturing session data...');
 		const sessionData = await captureSessionData(tab);
 		console.log('[PublicPass] Session captured:', { 
-			cookies: sessionData.cookies.length,
-			localStorage: sessionData.localStorage.length,
-			sessionStorage: sessionData.sessionStorage.length
+			cookiesCount: sessionData?.cookies?.length ?? 'undefined',
+			localStorageCount: sessionData?.localStorage?.length ?? 'undefined',
+			sessionStorageCount: sessionData?.sessionStorage?.length ?? 'undefined',
+			sessionData: sessionData
 		});
 
 		console.log('[PublicPass] Fetching recipient public key...');

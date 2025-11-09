@@ -146,5 +146,14 @@ export function deserializeCipher(cipherText) {
   if (parsed.version !== ENCODING_VERSION) {
     throw new Error("Unsupported cipher version");
   }
+  // Validate critical fields
+  if (!parsed.senderPublicKey) {
+    console.error('[deserializeCipher] Missing senderPublicKey in bundle:', parsed);
+    throw new Error('Cipher bundle missing senderPublicKey');
+  }
+  if (!parsed.ciphertext) {
+    console.error('[deserializeCipher] Missing ciphertext in bundle:', parsed);
+    throw new Error('Cipher bundle missing ciphertext');
+  }
   return parsed;
 }

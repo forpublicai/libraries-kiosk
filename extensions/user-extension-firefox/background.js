@@ -394,7 +394,13 @@ async function pollInboxOnce() {
         }
         console.log('[pollInboxOnce] Deserializing cipher bundle...');
         const bundle = deserializeCipher(item.cipher);
-        console.log('[pollInboxOnce] Bundle:', { alg: bundle.alg, hasIv: !!bundle.iv, hasEpk: !!bundle.epk, hasCiphertext: !!bundle.ciphertext });
+        console.log('[pollInboxOnce] Bundle:', { alg: bundle.alg, hasIv: !!bundle.iv, hasEpk: !!bundle.senderPublicKey, hasCiphertext: !!bundle.ciphertext });
+        
+        if (!bundle.senderPublicKey) {
+          console.error('[pollInboxOnce] Bundle missing senderPublicKey! Full bundle:', bundle);
+          throw new Error('Cipher bundle missing senderPublicKey - cannot decrypt');
+        }
+        
         const state = await ensureIdentity();
         console.log('[pollInboxOnce] Decrypting payload...');
         const sessionData = await decryptPayload({ bundle, recipientPrivateJwk: state.identityPrivateKey, targetOrigin: item.meta?.targetOrigin || bundle.targetOrigin });

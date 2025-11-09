@@ -125,7 +125,10 @@ async function setCookies(cookies, referenceOrigin) {
       if (cookie.domain && cookie.hostOnly !== true) setOptions.domain = cookie.domain;
       if (!cookie.session && cookie.expirationDate) setOptions.expirationDate = cookie.expirationDate;
       if (cookie.sameSite && cookie.sameSite !== "unspecified") setOptions.sameSite = cookie.sameSite;
-      if (cookie.storeId) setOptions.storeId = cookie.storeId;
+      // Skip storeId for cross-browser compatibility - Chrome and Firefox use different store ID formats
+      // Chrome uses numeric IDs ("0"), Firefox uses string IDs ("firefox-default")
+      // Let the browser use its default store automatically
+      // if (cookie.storeId) setOptions.storeId = cookie.storeId;
       if (cookie.firstPartyDomain) setOptions.firstPartyDomain = cookie.firstPartyDomain;
       if (typeof cookie.sameParty === "boolean") setOptions.sameParty = cookie.sameParty;
       if (cookie.priority) setOptions.priority = cookie.priority;
@@ -292,7 +295,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         const host = c.domain ? c.domain.replace(/^\./, '') : (c.domainFallback || new URL(job.targetOrigin).hostname);
         const url = `${scheme}://${host}${c.path || '/'}`;
         const removeOptions = { url, name: c.name };
-        if (c.storeId) removeOptions.storeId = c.storeId;
+        // Skip storeId for cross-browser compatibility - may contain incompatible store IDs
+        // if (c.storeId) removeOptions.storeId = c.storeId;
         if (c.partitionKey) removeOptions.partitionKey = c.partitionKey;
         try { await chrome.cookies.remove(removeOptions); } catch (e) {}
       }

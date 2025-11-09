@@ -1,0 +1,39 @@
+{
+  "manifest_version": 2,
+  "name": "PublicPass Admin (Firefox)",
+  "description": "Admin console for sending and managing sessions with PublicPass.",
+  "version": "1.0.0",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "publicpass-admin@example.com",
+      "strict_min_version": "109.0"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "browser_action": {
+    "default_popup": "popup/popup.html"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "background": {
+    "page": "background.html"
+  },
+  "permissions": [
+    "activeTab",
+    "cookies",
+    "storage",
+    "tabs",
+    "notifications",
+    "webNavigation",
+    "alarms",
+    "clipboardWrite",
+    "https://*/*",
+    "http://*/*"
+  ]
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>PublicPass Admin Settings</title>
+    <link rel="stylesheet" href="../shared.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Admin Settings</h1>
+      <form id="settings-form" class="card">
+        <label>
+          Admin Username
+          <input type="text" id="current-username" required />
+        </label>
+        <label>
+          Default Share Expiration (seconds)
+          <input type="number" id="ttl-seconds" min="60" max="3600" step="60" required />
+        </label>
+        <label>
+          Ask before accepting links
+          <select id="accept-prompt">
+            <option value="on">On</option>
+            <option value="off">Off</option>
+          </select>
+        </label>
+        <button type="submit">Save</button>
+        <div id="status" role="status" aria-live="polite"></div>
+      </form>
+      <section class="identity" aria-live="polite">
+        <h2>Current ID</h2>
+        <p id="identity-status">Checking identity…</p>
+      </section>
+
+      <section class="history" aria-live="polite">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <h2 style="margin:0;">Share history</h2>
+          <button id="refresh-history" type="button">Refresh</button>
+        </div>
+        <div id="history-list"></div>
+      </section>
+    </main>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

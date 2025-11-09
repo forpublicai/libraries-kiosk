@@ -1,0 +1,5 @@
+/* Minimal banner styling (kept separate in case you prefer CSS file registration) */
+#public-session-banner{position:fixed;top:0;left:0;right:0;z-index:2147483647}
+#public-session-banner .ps-wrapper{pointer-events:auto}
+/* Minimized tappable indicator */
+#public-session-mini{position:fixed;top:0;left:0;right:0;height:4px;background:#ef3c24;z-index:2147483647;cursor:pointer;display:none}

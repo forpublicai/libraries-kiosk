@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>PublicPass Browser Extensions – Onboarding Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    (function() {
+      try {
+        var t = localStorage.getItem('pp_theme');
+        if (t === 'dark' || t === 'light') {
+          document.documentElement.setAttribute('data-theme', t);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+      color: #222;
+      background: #f7f7f9;
+    }
+    html { scroll-behavior: smooth; }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px 40px;
+    }
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      width: 240px;
+      padding: 24px 12px 24px 8px;
+      background: #f2f4f7;
+      border-right: 1px solid #e0e4ea;
+    }
+    .content {
+      flex: 1 1 auto;
+      min-width: 0;
+      max-width: 900px;
+      padding: 24px 0 0;
+    }
+
+    h1, h2, h3 {
+      color: #15395b;
+      margin-top: 1.4em;
+      margin-bottom: 0.4em;
+    }
+    h1 {
+      font-size: 1.9rem;
+      margin-top: 0;
+    }
+    h2 {
+      font-size: 1.4rem;
+      border-bottom: 2px solid #e0e4ea;
+      padding-bottom: 0.25rem;
+      scroll-margin-top: 16px;
+    }
+    h3 {
+      font-size: 1.1rem;
+    }
+    p {
+      margin: 0.3em 0 0.6em;
+    }
+    ul, ol {
+      margin: 0.3em 0 0.9em 1.4em;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 0.25em;
+    }
+    strong {
+      font-weight: 600;
+    }
+    a { color: #0f5ba7; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Sidebar nav */
+    .side-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #183a5a;
+      margin: 12px 0 8px 8px;
+    }
+    .side-nav { list-style: none; margin: 0; padding: 0 8px; }
+    .side-nav li { margin: 6px 0; }
+    .side-nav a { display: block; padding: 6px 8px; border-radius: 6px; color: #1f2a44; }
+    .side-nav a:hover { background: #e7eef6; text-decoration: none; }
+    .side-nav .muted { color: #5a6a85; font-size: 0.92em; margin-top: 10px; }
+
+    .tagline {
+      font-size: 0.98rem;
+      color: #555;
+      margin-bottom: 1.2em;
+    }
+    .section-label {
+      font-weight: 600;
+      color: #888;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .tip {
+      background: #e8f5e9;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 0.9rem;
+      border-left: 3px solid #43a047;
+      margin: 0.6em 0 1em;
+    }
+    .callout {
+      background: #fff3cd;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 0.9rem;
+      border-left: 3px solid #ffb300;
+      margin: 0.6em 0 1em;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.9em;
+      background: #f0f2f6;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .layout { display: block; padding: 0 0 32px; }
+      .sidebar {
+        position: static;
+        height: auto;
+        width: auto;
+        border-right: 0;
+        border-bottom: 1px solid #e0e4ea;
+        padding: 12px 12px 8px;
+        background: #f7f7f9;
+      }
+      .content { padding: 16px; }
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #101216;
+        color: #e5e7eb;
+      }
+      .sidebar { background: #0f1520; border-right-color: #1f2a37; }
+      .content { background: transparent; }
+      h1, h2, h3 {
+        color: #e5efff;
+      }
+      code {
+        background: #1f2937;
+      }
+      .side-title { color: #cbd5e1; }
+      .side-nav a { color: #d1d5db; }
+      .side-nav a:hover { background: #111827; }
+      .tip {
+        background: #064e3b;
+        border-left-color: #22c55e;
+      }
+      .callout {
+        background: #4b2e05;
+        border-left-color: #fbbf24;
+      }
+    }
+
+    /* Theme toggle button */
+    .side-controls { display: flex; justify-content: flex-end; gap: 8px; margin: 4px 6px 10px; }
+    .theme-toggle {
+      appearance: none;
+      border: 1px solid #d1d9e6;
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .theme-toggle:hover { background: #f3f6fb; }
+    @media (prefers-color-scheme: dark) {
+      .theme-toggle { background: #0b1220; border-color: #2a3441; color: #e5e7eb; }
+      .theme-toggle:hover { background: #111827; }
+    }
+
+    /* Explicit theme overrides (win over system preference) */
+    [data-theme="dark"] body { background: #101216; color: #e5e7eb; }
+    [data-theme="dark"] .sidebar { background: #0f1520; border-right-color: #1f2a37; }
+    [data-theme="dark"] .content { background: transparent; }
+    [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3 { color: #e5efff; }
+    [data-theme="dark"] code { background: #1f2937; }
+    [data-theme="dark"] .side-title { color: #cbd5e1; }
+    [data-theme="dark"] .side-nav a { color: #d1d5db; }
+    [data-theme="dark"] .side-nav a:hover { background: #111827; }
+    [data-theme="dark"] .tip { background: #064e3b; border-left-color: #22c55e; }
+    [data-theme="dark"] .callout { background: #4b2e05; border-left-color: #fbbf24; }
+
+    [data-theme="light"] body { background: #f7f7f9; color: #222; }
+    [data-theme="light"] .sidebar { background: #f2f4f7; border-right-color: #e0e4ea; }
+    [data-theme="light"] .content { background: transparent; }
+    [data-theme="light"] h1, [data-theme="light"] h2, [data-theme="light"] h3 { color: #15395b; }
+    [data-theme="light"] code { background: #f0f2f6; }
+    [data-theme="light"] .side-title { color: #183a5a; }
+    [data-theme="light"] .side-nav a { color: #1f2a44; }
+    [data-theme="light"] .side-nav a:hover { background: #e7eef6; }
+    [data-theme="light"] .tip { background: #e8f5e9; border-left-color: #43a047; }
+    [data-theme="light"] .callout { background: #fff3cd; border-left-color: #ffb300; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+
+      <div class="side-title">On this page</div>
+      <ul class="side-nav">
+        <li><a href="#what-publicpass-does">What PublicPass Does</a></li>
+        <li><a href="#features">Key Features</a></li>
+        <li><a href="#what-you-need">What You Need</a></li>
+        <li><a href="#installing">Installing the Extensions</a></li>
+        <li><a href="#setup-admins">First-Time Setup (Admins)</a></li>
+        <li><a href="#setup-users">First-Time Setup (Users)</a></li>
+        <li><a href="#workflow">Everyday Workflow</a></li>
+
+        <li><a href="#practices">Good Practices</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <a href="https://publicai.network/libraries.html" target="_blank" class="side-nav muted">Public AI Libraries Projects</a>
+      </ul>
+            <div class="side-controls">
+        <button id="theme-toggle" type="button" class="theme-toggle" aria-label="Toggle dark mode">🌙 Dark mode</button>
+      </div>
+    </aside>
+    <main class="content">
+      <h1>PublicPass Browser Extensions</h1>
+      <p class="tagline">Onboarding Guide for Library Administrators (Chromebooks)</p>
+
+    <h2 id="what-publicpass-does">1. What PublicPass Does</h2>
+    <p>
+      PublicPass is a pair of browser extensions that make it easy and safe to
+      log patrons into websites (like research databases, learning platforms,
+      or other online services) on shared library devices.
+    </p>
+
+    <h3>Admin Extension (for staff)</h3>
+    <ul>
+      <li>Lets you log in once as an administrator.</li>
+      <li>Captures that signed‑in “session” securely.</li>
+      <li>Sends it to a patron’s Chromebook with a few clicks.</li>
+    </ul>
+
+    <h3>User Extension (for patrons)</h3>
+    <ul>
+      <li>Receives the session from the admin.</li>
+      <li>Applies the login to the patron’s browser.</li>
+      <li>Can automatically log the patron out later, so sessions don’t linger.</li>
+    </ul>
+
+    <p>
+      Think of it as a secure “remote login handoff” from staff to patron,
+      designed for shared Chromebooks.
+    </p>
+
+        <h2 id="features">2. Key Features</h2>
+
+    <h3>No Passwords on Patron Devices</h3>
+    <ul>
+      <li>Patrons never see or type the library’s shared passwords.</li>
+      <li>Sessions are delivered already logged-in, via the extension.</li>
+    </ul>
+
+    <h3>Secure Session Sharing</h3>
+    <ul>
+      <li>Sessions are encrypted end‑to‑end between admin and user extensions.</li>
+      <li>Only the intended user device can decrypt and use a session.</li>
+    </ul>
+
+    <h3>Automatic Logout (Session Time Limits)</h3>
+    <ul>
+      <li>Admins can set how long a session lasts.</li>
+      <li>After the time is up, the extension can:
+        <ul>
+          <li>Clear cookies and storage for that site.</li>
+          <li>Close the tab or log out, depending on configuration.</li>
+        </ul>
+      </li>
+      <li>This protects patrons’ privacy on shared Chromebooks.</li>
+    </ul>
+
+    <h3>Per-Website / Per-Tab</h3>
+    <ul>
+      <li>Admins log in only to the websites they want to share.</li>
+      <li>Sessions are captured per site, not for your entire browser.</li>
+    </ul>
+
+    <h3>Cross-Device Compatible</h3>
+    <ul>
+      <li>Works between different Chromebooks.</li>
+      <li>Designed for shared and rotating devices, like public library terminals or checkout Chromebooks.</li>
+    </ul>
+
+    <h2 id="what-you-need">3. What You Need</h2>
+    <h3>Devices</h3>
+    <ul>
+      <li><strong>Staff:</strong> A Chromebook with the Admin Extension installed.</li>
+      <li><strong>Patrons:</strong> Chromebooks with the User Extension installed.</li>
+    </ul>
+    <p><strong>Browser:</strong> Google Chrome (or the Chrome browser on Chromebooks).</p>
+
+    <h3>Access</h3>
+    <ul>
+      <li>Internet access for both staff and patron devices.</li>
+      <li>Access to the online services you want to share (e.g., databases, learning tools).</li>
+    </ul>
+
+    <h2 id="installing">4. Installing the Extensions</h2>
+    <h3>A. From the Chrome Web Store (recommended)</h3>
+    <p>Do this on each device type.</p>
+
+    <h4>1) Admin Extension (staff Chromebooks)</h4>
+    <ol>
+      <li>Open Chrome.</li>
+      <li>Go to the Chrome Web Store.</li>
+      <li>Search for: <strong>“PublicPass Admin”</strong>.</li>
+      <li>Click <strong>Add to Chrome</strong> → <strong>Add extension</strong>.</li>
+      <li>
+        Pin it by clicking the puzzle icon (Extensions) in the toolbar and
+        clicking the pin next to <strong>PublicPass Admin</strong>.
+      </li>
+    </ol>
+
+    <h4>2) User Extension (patron Chromebooks)</h4>
+    <ol>
+      <li>On a patron Chromebook, open Chrome.</li>
+      <li>Go to the Chrome Web Store.</li>
+      <li>Search for: <strong>“PublicPass User”</strong>.</li>
+      <li>Click <strong>Add to Chrome</strong> → <strong>Add extension</strong>.</li>
+      <li>
+        Pin it by clicking the puzzle icon (Extensions) and pinning
+        <strong>PublicPass User</strong>.
+      </li>
+    </ol>
+
+    <div class="tip">
+      <strong>Tip for managed Chromebooks:</strong>
+      Your IT team can push these extensions to all staff/patron devices through
+      the Google Admin Console, instead of installing them by hand.
+    </div>
+
+    <h3>B. If You Have ZIP Files (fallback method)</h3>
+    <p>If your IT team provided <code>.zip</code> files instead of using the Web Store:</p>
+
+    <h4>1) Prepare the ZIPs</h4>
+    <ul>
+      <li>You should have two ZIP files, for example:</li>
+      <li><code>admin-extension.zip</code></li>
+      <li><code>user-extension.zip</code></li>
+    </ul>
+    <p>Unzip them somewhere on each Chromebook (or on a shared drive your IT can access).</p>
+
+    <h4>2) Enable Developer Mode (per device)</h4>
+    <div class="callout">
+      This is usually done by IT. Only use this method if the Web Store is not an option.
+    </div>
+    <ol>
+      <li>In Chrome, go to: <code>chrome://extensions</code></li>
+      <li>Turn on <strong>Developer mode</strong> (top right).</li>
+      <li>Click <strong>Load unpacked</strong>.</li>
+      <li>Select the unzipped folder for:
+        <ul>
+          <li><strong>Admin device:</strong> <code>admin-extension</code></li>
+          <li><strong>Patron device:</strong> <code>user-extension</code></li>
+        </ul>
+      </li>
+      <li>Pin the extension in the toolbar (via the puzzle icon).</li>
+    </ol>
+
+    <h2 id="setup-admins">5. First-Time Setup for Admins</h2>
+    <p>Once the Admin Extension is installed on a staff Chromebook:</p>
+    <ol>
+      <li>Click the <strong>PublicPass Admin</strong> icon in the toolbar.</li>
+      <li>Click <strong>Options</strong> or <strong>Settings</strong> (depending on the version).</li>
+      <li>Set:
+        <ul>
+          <li><strong>Server URL:</strong> This is usually pre‑filled. If IT gave you a URL, paste it here.</li>
+          <li><strong>Admin Username:</strong> A name or identifier for your admin account (e.g., <code>central-library-admin</code>).</li>
+        </ul>
+      </li>
+      <li>Click <strong>Save</strong>.</li>
+    </ol>
+    <p>The extension will:</p>
+    <ul>
+      <li>Register your identity with the server (in the background).</li>
+      <li>Store a secure key so only you can send sessions as this admin.</li>
+    </ul>
+    <p>You only need to do this once per admin.</p>
+
+    <h2 id="setup-users">6. First-Time Setup for User Devices</h2>
+    <p>On a patron Chromebook:</p>
+    <ol>
+      <li>Click the <strong>PublicPass User</strong> extension icon.</li>
+      <li>Open <strong>Options / Settings</strong>.</li>
+      <li>Set:
+        <ul>
+          <li><strong>Server URL:</strong> Same as the admin’s server URL (usually pre‑filled).</li>
+          <li>
+            <strong>Username:</strong> A simple library identifier, such as
+            <code>branch-a-chromebooks</code>.
+          </li>
+        </ul>
+        <p>
+          All patron devices at the same branch can share the same username,
+          or you can set one per device—whatever your policy prefers.
+        </p>
+      </li>
+      <li>Click <strong>Save</strong>.</li>
+    </ol>
+    <p>
+      The extension will register the device/user with the PublicPass server
+      so admins can send sessions to it.
+    </p>
+
+    <h2 id="workflow">7. Everyday Workflow: How to Share a Session</h2>
+
+    <h3>Step 1 – Admin logs into the website</h3>
+    <p>On the staff Chromebook:</p>
+    <ol>
+      <li>Open Chrome.</li>
+      <li>Go to the website you want patrons to use (for example, a database or service).</li>
+      <li>Log in as usual with the library’s institutional or admin credentials.</li>
+      <li>Make sure you are fully signed in and on the page you want patrons to land on.</li>
+    </ol>
+
+    <h3>Step 2 – Admin shares the session</h3>
+    <p>Still on the staff Chromebook:</p>
+    <ol>
+      <li>Click the <strong>PublicPass Admin</strong> extension icon.</li>
+      <li>Choose:
+        <ul>
+          <li>Which patron/user to send to (you’ll see usernames of registered user extensions).</li>
+          <li>Optionally, a comment (e.g., “Replit login for table 3”).</li>
+          <li>(If available) How long the session should last before auto‑logout.</li>
+        </ul>
+      </li>
+      <li>Click <strong>Share session</strong> (or similar language).</li>
+    </ol>
+    <p>The extension will:</p>
+    <ul>
+      <li>Capture the current login session (cookies + storage).</li>
+      <li>Encrypt it end‑to‑end.</li>
+      <li>Send it securely to the chosen user device.</li>
+    </ul>
+
+    <h3>Step 3 – Patron accepts and uses the session</h3>
+    <p>On the patron Chromebook:</p>
+    <ol>
+      <li>The <strong>PublicPass User</strong> extension shows a notification (or a small indicator) that a session has been received.</li>
+      <li>
+        The patron (or staff helping them) clicks:
+        <ul>
+          <li>The notification, or</li>
+          <li>The <strong>PublicPass User</strong> icon → <strong>Check inbox</strong> / <strong>Accept session</strong>.</li>
+        </ul>
+      </li>
+      <li>The extension:
+        <ul>
+          <li>Applies the login to the browser.</li>
+          <li>Opens the target website already logged in.</li>
+          <li>Optionally schedules auto‑logout (if configured by the admin).</li>
+        </ul>
+      </li>
+    </ol>
+    <p>
+      From the patron’s perspective, they are simply taken to the site and
+      already signed in.
+    </p>
+
+
+
+    <h2 id="practices">8. Good Practices for Library Staff</h2>
+
+    <h3>Use dedicated admin devices</h3>
+    <p>
+      Keep admin logins on staff Chromebooks; use user extensions on patron
+      Chromebooks only.
+    </p>
+
+    <h3>Keep extensions up to date</h3>
+    <ul>
+      <li>The Chrome Web Store updates extensions automatically.</li>
+      <li>If using ZIPs, plan regular updates via IT.</li>
+    </ul>
+
+    <h3>Use session time limits</h3>
+    <ul>
+      <li>Set a reasonable session duration (e.g., 30–60 minutes).</li>
+      <li>This balances convenience with privacy and security.</li>
+    </ul>
+
+    <h3>Train staff with a simple script</h3>
+    <ul>
+      <li>“Log in as usual → Click PublicPass Admin → Choose patron → Share.”</li>
+      <li>“Patron clicks PublicPass User → Accept session → Use site.”</li>
+    </ul>
+
+    <h3>Clear policies on who can send sessions</h3>
+    <ul>
+      <li>Limit admin extensions to staff accounts only.</li>
+      <li>Do not install the admin extension on patron devices.</li>
+    </ul>
+
+    <h2 id="troubleshooting">9. Troubleshooting Tips</h2>
+
+    <h3>The patron doesn’t see a session</h3>
+    <ul>
+      <li>On the patron Chromebook, click the <strong>PublicPass User</strong> icon and press <strong>Check now</strong>.</li>
+      <li>Make sure the <strong>username</strong> on the user extension matches what the admin is sending to.</li>
+      <li>Confirm both devices have internet access.</li>
+    </ul>
+
+    <h3>Website opens but isn’t logged in</h3>
+    <ul>
+      <li>Ensure the admin was fully logged in before sharing.</li>
+      <li>Try sharing again from a fresh, logged‑in tab.</li>
+      <li>
+        If the site has strict security (e.g., unusual device checks), contact <code>mohsin@publicai.co</code>
+        Some services may be less compatible with session transfer.
+      </li>
+    </ul>
+
+    <h3>Sessions seem to stick around too long</h3>
+    <ul>
+      <li>Lower the default session time limit in the admin extension options.</li>
+      <li>Encourage staff to revoke sessions or use manual logout when needed.</li>
+    </ul>
+
+    <h3>Using ZIP versions and seeing warnings</h3>
+    <ul>
+      <li>Developer mode is normal for ZIP-based installs.</li>
+    </ul>
+
+    <h2 id="contact">Contact</h2>
+    <p>For any issues, concerns, or questions, please contact <code>mohsin@publicai.co</code></p>
+
+
+    <p>
+      This guide is meant to help library admins start using the PublicPass
+      extensions quickly and safely, without needing to understand the
+      technical details behind encryption or browser storage.
+    </p>
+    </main>
+  </div>
+  <script>
+    (function() {
+      var btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      var root = document.documentElement;
+      function label() {
+        var cur = root.getAttribute('data-theme');
+        var nextIsDark = (cur !== 'dark');
+        btn.textContent = (nextIsDark ? '🌙 Dark mode' : '☀️ Light mode');
+      }
+      label();
+      btn.addEventListener('click', function() {
+        var cur = root.getAttribute('data-theme');
+        var next = (cur === 'dark') ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('pp_theme', next); } catch (e) {}
+        label();
+      });
+    })();
+  </script>
+</body>
+</html>
+

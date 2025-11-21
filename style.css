@@ -152,10 +152,10 @@ body{
 .card--suno{ grid-column: span 4; grid-row: span 2; }
 .card--edison{ grid-column: span 8; grid-row: span 2; }
 .card--runway{ grid-column: span 5; grid-row: span 2; }
-.card--presentations{ grid-column: span 9; grid-row: span 2; }
+.card--presentations{ grid-column: span 6; grid-row: span 2; }
 /* New bottom row cards */
 .card--datasets{ grid-column: span 9; grid-row: span 2; }
-.card--feature{ grid-column: span 5; grid-row: span 2; }
+.card--feature{ grid-column: span 3; grid-row: span 2; }
 
 /* Typography */
 .service-title{ margin:0 0 8px 0; font-size: clamp(36px, 5vw, 64px); font-weight:800; letter-spacing:.2px; }

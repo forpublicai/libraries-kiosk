@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "PublicPass User",
   "description": "Receive and accept sessions; request access when needed.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",

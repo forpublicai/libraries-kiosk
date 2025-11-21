@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Access Only</title>
+    <style>
+      :root{ --bg:#f7f7f8; --fg:#111; --muted:#555; --accent:#ef3c24 }
+      html,body{ height:100%; margin:0 }
+      body{ display:flex; align-items:center; justify-content:center; font-family:Segoe UI, Roboto, Arial, sans-serif; background:var(--bg); color:var(--fg) }
+      .card{ max-width:520px; padding:32px 28px; background:#fff; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.08) }
+      h1{ margin:0 0 8px; font-size:22px }
+      p{ margin:0; color:var(--muted); line-height:1.5 }
+      a{ display:inline-block; margin-top:24px; color:var(--accent); text-decoration:none; font-weight:600 }
+      .badge{ display:inline-block; background:var(--accent); color:#fff; padding:4px 8px; border-radius:999px; font-weight:600; font-size:12px; letter-spacing:.3px; text-transform:uppercase; margin-bottom:12px }
+    </style>
+  </head>
+  <body>
+    <main class="card" role="main" aria-labelledby="title">
+      <div class="badge" aria-hidden="true">Blocked</div>
+      <h1 id="title">Looks like you got lost...</h1>
+      <p>Please reach out to your librarian if you need help.</p>
+
+      <a href="https://forpublicai.github.io/libraries-kiosk/">Back to Dashboard</a>
+    </main>
+  </body>
+</html>

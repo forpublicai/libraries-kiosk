@@ -9,7 +9,7 @@
   const shadow = banner.attachShadow({ mode: 'closed' });
   const style = document.createElement('style');
   style.textContent = `
-    .ps-wrapper{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#ef3c24;color:#fff;padding:8px 12px;font-family:Segoe UI, Roboto, Arial, sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.12);}
+    .ps-wrapper{opacity:0.7;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#ef3c24;color:#fff;padding:8px 12px;font-family:Segoe UI, Roboto, Arial, sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.12);}
     .ps-text{font-size:14px;margin:0;flex:1}
     .ps-actions{display:flex;align-items:center;gap:12px}
     .ps-link{color:#fff;font-size:14px;text-decoration:underline;font-weight:600}
@@ -35,11 +35,11 @@
   dashboardLink.className = 'ps-link';
   dashboardLink.textContent = 'Dashboard';
 
-  const close = document.createElement('button');
+  const close = document.createElement('a');
   close.type = 'button';
-  close.className = 'ps-close';
+  close.className = 'ps-link';
   close.setAttribute('aria-label', 'Hide public session banner');
-  close.textContent = '×';
+  close.textContent = 'Hide';
 
   actions.appendChild(dashboardLink);
   actions.appendChild(close);

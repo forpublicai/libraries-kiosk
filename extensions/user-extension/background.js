@@ -372,3 +372,80 @@ chrome.storage.onChanged.addListener((changes, area) => {
     registerIdentityIfNeeded().catch(() => {});
   }
 });
+
+// Simple URL block + redirect to in-extension notice page
+(function setupSimpleBlocklist() {
+  const DEFAULT_BLOCK_RULES = [
+    { type: 'hostPathPrefix', host: 'replit.com', pathPrefix: '/account' }
+  ];
+
+  let BLOCK_RULES = null; // cached and precompiled
+
+  async function loadRules() {
+    if (BLOCK_RULES) return BLOCK_RULES;
+    try {
+      const res = await fetch(chrome.runtime.getURL('blocked-rules.json'));
+      const json = await res.json();
+      const rules = Array.isArray(json.rules) ? json.rules : [];
+      // Precompile regex rules
+      BLOCK_RULES = rules.map((r) => {
+        if (r && r.type === 'regex' && typeof r.pattern === 'string') {
+          try { r._re = new RegExp(r.pattern); } catch (_) {}
+        }
+        return r;
+      });
+    } catch (_) {
+      BLOCK_RULES = DEFAULT_BLOCK_RULES;
+    }
+    return BLOCK_RULES;
+  }
+
+  function hostMatches(hostname, host) {
+    return hostname === host || hostname.endsWith(`.${host}`);
+  }
+
+  function urlMatchesRule(u, rule) {
+    if (!rule || typeof rule !== 'object') return false;
+    switch (rule.type) {
+      case 'hostPathPrefix': {
+        if (!rule.host) return false;
+        const okHost = hostMatches(u.hostname, rule.host);
+        const prefix = rule.pathPrefix || '/';
+        return okHost && u.pathname.startsWith(prefix);
+      }
+      case 'regex': {
+        return !!rule._re && rule._re.test(u.href);
+      }
+      case 'prefixSuffix': {
+        const preOk = !rule.prefix || u.href.startsWith(rule.prefix);
+        const sufOk = !rule.suffix || u.href.endsWith(rule.suffix);
+        return preOk && sufOk;
+      }
+      default:
+        return false;
+    }
+  }
+
+  function isBlockedUrlSync(raw) {
+    let u; try { u = new URL(raw); } catch (_) { return false; }
+    if (!/^https?:$/.test(u.protocol)) return false;
+    const rules = BLOCK_RULES;
+    if (!rules) return false;
+    for (const r of rules) { if (urlMatchesRule(u, r)) return true; }
+    return false;
+  }
+
+  // Start loading rules at service worker startup
+  loadRules().catch(() => {});
+
+  function maybeRedirect(details) {
+    if (details.frameId !== 0) return; // only top-level
+    if (!BLOCK_RULES) loadRules().catch(() => {}); // opportunistic load if still null
+    if (!isBlockedUrlSync(details.url)) return;
+    const redirectUrl = chrome.runtime.getURL('blocked.html');
+    try { chrome.tabs.update(details.tabId, { url: redirectUrl }); } catch (_) {}
+  }
+
+  chrome.webNavigation.onBeforeNavigate.addListener(maybeRedirect, { url: [{ urlMatches: '.*' }] });
+  chrome.webNavigation.onHistoryStateUpdated.addListener(maybeRedirect, { url: [{ urlMatches: '.*' }] });
+})();

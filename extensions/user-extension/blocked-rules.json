@@ -1,0 +1,19 @@
+
+{
+  "rules": [
+    { "type": "hostPathPrefix", "host": "replit.com", "pathPrefix": "/account" },
+    { "type": "hostPathPrefix", "host": "replit.com", "pathPrefix": "/account/" },
+    { "type": "hostPathPrefix", "host": "suno.com", "pathPrefix": "/account/" },
+    { "type": "hostPathPrefix", "host": "suno.com", "pathPrefix": "/account" },
+    { "type": "hostPathPrefix", "host": "midjourney.com", "pathPrefix": "/account" },
+    { "type": "hostPathPrefix", "host": "midjourney.com", "pathPrefix": "/account/" },
+    { "type": "hostPathPrefix", "host": "midjourney.com", "pathPrefix": "/profile-settings" },
+    { "type": "hostPathPrefix", "host": "midjourney.com", "pathPrefix": "/profile-settings/" },
+    { "type": "regex", "pattern": "^https://app\\.runwayml\\.com/.*/settings(?:$|[/?#])" },
+    { "type": "hostPathPrefix", "host": "checkout.runwayml.com" },
+    { "type": "regex", "pattern": "^https://gamma\\.app/settings(?:$|[/?#])" },
+    { "type": "hostPathPrefix", "host": "gmail.com" },
+    { "type": "hostPathPrefix", "host": "mail.google.com" }
+    
+  ]
+}

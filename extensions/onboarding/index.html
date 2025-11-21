@@ -15,205 +15,168 @@
     })();
   </script>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.5;
-      color: #222;
-      background: #f7f7f9;
+    :root {
+      --bg-body: #ffffff;
+      --bg-sidebar: #f6f8fa;
+      --border-color: #d0d7de;
+      --text-primary: #24292f;
+      --text-secondary: #57606a;
+      --link-color: #0969da;
+      --code-bg: #f6f8fa;
+      --tip-bg: #ddf4ff;
+      --tip-border: #0969da;
+      --callout-bg: #fff8c5;
+      --callout-border: #9a6700;
     }
+    [data-theme="dark"] {
+      --bg-body: #0d1117;
+      --bg-sidebar: #161b22;
+      --border-color: #30363d;
+      --text-primary: #c9d1d9;
+      --text-secondary: #8b949e;
+      --link-color: #58a6ff;
+      --code-bg: #161b22;
+      --tip-bg: rgba(56, 139, 253, 0.15);
+      --tip-border: #58a6ff;
+      --callout-bg: rgba(187, 128, 9, 0.15);
+      --callout-border: #d29922;
+    }
+
     html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text-primary);
+      background: var(--bg-body);
+      margin: 0;
+    }
 
     /* Layout */
     .layout {
       display: flex;
-      gap: 24px;
-      align-items: flex-start;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 16px 40px;
+      min-height: 100vh;
     }
+
     .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      padding: 32px 24px;
       position: sticky;
       top: 0;
       height: 100vh;
-      overflow: auto;
-      width: 240px;
-      padding: 24px 12px 24px 8px;
-      background: #f2f4f7;
-      border-right: 1px solid #e0e4ea;
-    }
-    .content {
-      flex: 1 1 auto;
-      min-width: 0;
-      max-width: 900px;
-      padding: 24px 0 0;
+      overflow-y: auto;
+      box-sizing: border-box;
     }
 
-    h1, h2, h3 {
-      color: #15395b;
-      margin-top: 1.4em;
-      margin-bottom: 0.4em;
+    .content {
+      flex-grow: 1;
+      padding: 48px 64px;
+      max-width: 900px;
+      margin: 0 auto;
     }
-    h1 {
-      font-size: 1.9rem;
-      margin-top: 0;
-    }
-    h2 {
-      font-size: 1.4rem;
-      border-bottom: 2px solid #e0e4ea;
-      padding-bottom: 0.25rem;
-      scroll-margin-top: 16px;
-    }
-    h3 {
-      font-size: 1.1rem;
-    }
-    p {
-      margin: 0.3em 0 0.6em;
-    }
-    ul, ol {
-      margin: 0.3em 0 0.9em 1.4em;
-      padding: 0;
-    }
-    li {
-      margin-bottom: 0.25em;
-    }
-    strong {
+
+    /* Typography */
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 24px;
+      margin-bottom: 16px;
       font-weight: 600;
+      line-height: 1.25;
+      color: var(--text-primary);
     }
-    a { color: #0f5ba7; text-decoration: none; }
+    h1 { font-size: 2em; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; margin-top: 0; }
+    h2 { font-size: 1.5em; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; margin-top: 1.5em; }
+    h3 { font-size: 1.25em; margin-top: 1.5em; }
+
+    p { margin-top: 0; margin-bottom: 16px; }
+
+    a { color: var(--link-color); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
-    /* Sidebar nav */
-    .side-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #183a5a;
-      margin: 12px 0 8px 8px;
+    code {
+      padding: 0.2em 0.4em;
+      margin: 0;
+      font-size: 85%;
+      background-color: var(--code-bg);
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
     }
-    .side-nav { list-style: none; margin: 0; padding: 0 8px; }
-    .side-nav li { margin: 6px 0; }
-    .side-nav a { display: block; padding: 6px 8px; border-radius: 6px; color: #1f2a44; }
-    .side-nav a:hover { background: #e7eef6; text-decoration: none; }
-    .side-nav .muted { color: #5a6a85; font-size: 0.92em; margin-top: 10px; }
 
-    .tagline {
-      font-size: 0.98rem;
-      color: #555;
-      margin-bottom: 1.2em;
-    }
-    .section-label {
-      font-weight: 600;
-      color: #888;
-      font-size: 0.85rem;
+    ul, ol { padding-left: 2em; margin-bottom: 16px; }
+    li { margin-bottom: 0.25em; }
+
+    /* Sidebar Nav */
+    .side-title {
+      font-size: 0.75rem;
       text-transform: uppercase;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
       letter-spacing: 0.05em;
     }
-    .tip {
-      background: #e8f5e9;
+    .side-nav { list-style: none; padding: 0; margin: 0; }
+    .side-nav li { margin-bottom: 4px; }
+    .side-nav a {
+      display: block;
+      padding: 8px;
+      color: var(--text-primary);
       border-radius: 6px;
-      padding: 8px 10px;
-      font-size: 0.9rem;
-      border-left: 3px solid #43a047;
-      margin: 0.6em 0 1em;
+      font-size: 14px;
     }
-    .callout {
-      background: #fff3cd;
+    .side-nav a:hover {
+      background: rgba(0,0,0,0.05);
+      text-decoration: none;
+    }
+    [data-theme="dark"] .side-nav a:hover { background: rgba(255,255,255,0.1); }
+
+    .side-nav .muted {
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-top: 16px;
+      padding-left: 8px;
+    }
+
+    /* Alerts */
+    .tip, .callout {
+      padding: 16px;
       border-radius: 6px;
-      padding: 8px 10px;
-      font-size: 0.9rem;
-      border-left: 3px solid #ffb300;
-      margin: 0.6em 0 1em;
+      margin-bottom: 16px;
+      border-left: 4px solid;
     }
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.9em;
-      background: #f0f2f6;
-      padding: 1px 4px;
-      border-radius: 3px;
+    .tip { background: var(--tip-bg); border-color: var(--tip-border); }
+    .callout { background: var(--callout-bg); border-color: var(--callout-border); }
+
+    .tagline {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 2em;
     }
+
+    /* Theme Toggle */
+    .side-controls { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); }
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      width: 100%;
+      text-align: center;
+    }
+    .theme-toggle:hover { background: rgba(0,0,0,0.05); }
+    [data-theme="dark"] .theme-toggle:hover { background: rgba(255,255,255,0.1); }
 
     /* Responsive */
-    @media (max-width: 960px) {
-      .layout { display: block; padding: 0 0 32px; }
-      .sidebar {
-        position: static;
-        height: auto;
-        width: auto;
-        border-right: 0;
-        border-bottom: 1px solid #e0e4ea;
-        padding: 12px 12px 8px;
-        background: #f7f7f9;
-      }
-      .content { padding: 16px; }
+    @media (max-width: 768px) {
+      .layout { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: static; border-right: none; border-bottom: 1px solid var(--border-color); padding: 16px; }
+      .content { padding: 24px 16px; }
     }
-    @media (prefers-color-scheme: dark) {
-      body {
-        background: #101216;
-        color: #e5e7eb;
-      }
-      .sidebar { background: #0f1520; border-right-color: #1f2a37; }
-      .content { background: transparent; }
-      h1, h2, h3 {
-        color: #e5efff;
-      }
-      code {
-        background: #1f2937;
-      }
-      .side-title { color: #cbd5e1; }
-      .side-nav a { color: #d1d5db; }
-      .side-nav a:hover { background: #111827; }
-      .tip {
-        background: #064e3b;
-        border-left-color: #22c55e;
-      }
-      .callout {
-        background: #4b2e05;
-        border-left-color: #fbbf24;
-      }
-    }
-
-    /* Theme toggle button */
-    .side-controls { display: flex; justify-content: flex-end; gap: 8px; margin: 4px 6px 10px; }
-    .theme-toggle {
-      appearance: none;
-      border: 1px solid #d1d9e6;
-      background: #ffffff;
-      color: #0f172a;
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-    .theme-toggle:hover { background: #f3f6fb; }
-    @media (prefers-color-scheme: dark) {
-      .theme-toggle { background: #0b1220; border-color: #2a3441; color: #e5e7eb; }
-      .theme-toggle:hover { background: #111827; }
-    }
-
-    /* Explicit theme overrides (win over system preference) */
-    [data-theme="dark"] body { background: #101216; color: #e5e7eb; }
-    [data-theme="dark"] .sidebar { background: #0f1520; border-right-color: #1f2a37; }
-    [data-theme="dark"] .content { background: transparent; }
-    [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3 { color: #e5efff; }
-    [data-theme="dark"] code { background: #1f2937; }
-    [data-theme="dark"] .side-title { color: #cbd5e1; }
-    [data-theme="dark"] .side-nav a { color: #d1d5db; }
-    [data-theme="dark"] .side-nav a:hover { background: #111827; }
-    [data-theme="dark"] .tip { background: #064e3b; border-left-color: #22c55e; }
-    [data-theme="dark"] .callout { background: #4b2e05; border-left-color: #fbbf24; }
-
-    [data-theme="light"] body { background: #f7f7f9; color: #222; }
-    [data-theme="light"] .sidebar { background: #f2f4f7; border-right-color: #e0e4ea; }
-    [data-theme="light"] .content { background: transparent; }
-    [data-theme="light"] h1, [data-theme="light"] h2, [data-theme="light"] h3 { color: #15395b; }
-    [data-theme="light"] code { background: #f0f2f6; }
-    [data-theme="light"] .side-title { color: #183a5a; }
-    [data-theme="light"] .side-nav a { color: #1f2a44; }
-    [data-theme="light"] .side-nav a:hover { background: #e7eef6; }
-    [data-theme="light"] .tip { background: #e8f5e9; border-left-color: #43a047; }
-    [data-theme="light"] .callout { background: #fff3cd; border-left-color: #ffb300; }
   </style>
 </head>
 <body>
@@ -229,19 +192,26 @@
         <li><a href="#setup-admins">First-Time Setup (Admins)</a></li>
         <li><a href="#setup-users">First-Time Setup (Users)</a></li>
         <li><a href="#workflow">Everyday Workflow</a></li>
-
         <li><a href="#practices">Good Practices</a></li>
         <li><a href="#troubleshooting">Troubleshooting</a></li>
         <li><a href="#contact">Contact</a></li>
-        <a href="https://publicai.network/libraries.html" target="_blank" class="side-nav muted">Public AI Libraries Projects</a>
-      </ul>
+        </ul>
+
+        <ul class="side-controls">
+        <div class="side-title">Helpful Links</div>
+        <p><a href="https://github.com/forpublicai/libraries-kiosk/tree/main/extensions" target="_blank" class="side-nav muted">Github Repo</a></p>
+        <p><a href="https://forpublicai.github.io/libraries-kiosk/" target="_blank" class="side-nav muted">Kiosk Dashboard</a></p>  
+        <p><a href="https://publicai.network/libraries.html" target="_blank" class="side-nav muted">Public AI Libraries Projects</a></p>
+        </ul>
             <div class="side-controls">
         <button id="theme-toggle" type="button" class="theme-toggle" aria-label="Toggle dark mode">🌙 Dark mode</button>
       </div>
     </aside>
     <main class="content">
-      <h1>PublicPass Browser Extensions</h1>
-      <p class="tagline">Onboarding Guide for Library Administrators (Chromebooks)</p>
+      <h1>PublicPass Onboarding Guide</h1>
+            <p style="color: #58a6ff; font-size: small;">Updated: 2025-11-21</p>
+
+      <p class="tagline">Onboarding Guide for Library Administrators for Chrome browser extensions</p>
 
     <h2 id="what-publicpass-does">1. What PublicPass Does</h2>
     <p>
@@ -394,7 +364,6 @@
       <li>Click <strong>Options</strong> or <strong>Settings</strong> (depending on the version).</li>
       <li>Set:
         <ul>
-          <li><strong>Server URL:</strong> This is usually pre‑filled. If IT gave you a URL, paste it here.</li>
           <li><strong>Admin Username:</strong> A name or identifier for your admin account (e.g., <code>central-library-admin</code>).</li>
         </ul>
       </li>
@@ -414,15 +383,13 @@
       <li>Open <strong>Options / Settings</strong>.</li>
       <li>Set:
         <ul>
-          <li><strong>Server URL:</strong> Same as the admin’s server URL (usually pre‑filled).</li>
           <li>
             <strong>Username:</strong> A simple library identifier, such as
             <code>branch-a-chromebooks</code>.
           </li>
         </ul>
         <p>
-          All patron devices at the same branch can share the same username,
-          or you can set one per device—whatever your policy prefers.
+          All patron devices need to have a unique username. A recommended format is "state-branch-device1", "state-branch-device2", etc.
         </p>
       </li>
       <li>Click <strong>Save</strong>.</li>
@@ -449,8 +416,7 @@
       <li>Click the <strong>PublicPass Admin</strong> extension icon.</li>
       <li>Choose:
         <ul>
-          <li>Which patron/user to send to (you’ll see usernames of registered user extensions).</li>
-          <li>Optionally, a comment (e.g., “Replit login for table 3”).</li>
+          <li>Which device to send to.</li>
           <li>(If available) How long the session should last before auto‑logout.</li>
         </ul>
       </li>
@@ -466,12 +432,12 @@
     <h3>Step 3 – Patron accepts and uses the session</h3>
     <p>On the patron Chromebook:</p>
     <ol>
-      <li>The <strong>PublicPass User</strong> extension shows a notification (or a small indicator) that a session has been received.</li>
+      <li>The <strong>PublicPass User</strong> extension shows a notification that a session has been received.</li>
       <li>
         The patron (or staff helping them) clicks:
         <ul>
           <li>The notification, or</li>
-          <li>The <strong>PublicPass User</strong> icon → <strong>Check inbox</strong> / <strong>Accept session</strong>.</li>
+          <li>The <strong>PublicPass User</strong> icon → <strong>Check now</strong>.</li>
         </ul>
       </li>
       <li>The extension:
@@ -486,6 +452,8 @@
       From the patron’s perspective, they are simply taken to the site and
       already signed in.
     </p>
+
+    <p>In the Admin extension, the settings section allows you to view past sessions shared and manage them.</p>
 
 
 
@@ -511,7 +479,7 @@
 
     <h3>Train staff with a simple script</h3>
     <ul>
-      <li>“Log in as usual → Click PublicPass Admin → Choose patron → Share.”</li>
+      <li>“Log in as usual → Click PublicPass Admin → Choose device → Share.”</li>
       <li>“Patron clicks PublicPass User → Accept session → Use site.”</li>
     </ul>
 

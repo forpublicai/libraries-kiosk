@@ -10,7 +10,10 @@
   const style = document.createElement('style');
   style.textContent = `
     .ps-wrapper{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#ef3c24;color:#fff;padding:8px 12px;font-family:Segoe UI, Roboto, Arial, sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.12);}
-    .ps-text{font-size:14px;margin:0}
+    .ps-text{font-size:14px;margin:0;flex:1}
+    .ps-actions{display:flex;align-items:center;gap:12px}
+    .ps-link{color:#fff;font-size:14px;text-decoration:underline;font-weight:600}
+    .ps-link:hover{opacity:0.85}
     .ps-close{background:transparent;border:0;font-size:18px;cursor:pointer;color:inherit;line-height:1;padding:4px 6px}
     .ps-close:hover{opacity:0.85}
   `;
@@ -22,14 +25,27 @@
   message.className = 'ps-text';
   message.textContent = 'This is a public session which is shared between multiple users. Please be mindful!';
 
+  const actions = document.createElement('div');
+  actions.className = 'ps-actions';
+
+  const dashboardLink = document.createElement('a');
+  dashboardLink.href = 'https://forpublicai.github.io/libraries-kiosk/';
+  dashboardLink.target = '_blank';
+  dashboardLink.rel = 'noopener noreferrer';
+  dashboardLink.className = 'ps-link';
+  dashboardLink.textContent = 'Dashboard';
+
   const close = document.createElement('button');
   close.type = 'button';
   close.className = 'ps-close';
   close.setAttribute('aria-label', 'Hide public session banner');
   close.textContent = '×';
 
+  actions.appendChild(dashboardLink);
+  actions.appendChild(close);
+
   wrapper.appendChild(message);
-  wrapper.appendChild(close);
+  wrapper.appendChild(actions);
 
   shadow.appendChild(style);
   shadow.appendChild(wrapper);

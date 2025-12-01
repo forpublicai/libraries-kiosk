@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "PublicPass Admin",
+  "name": "Public AI Pass Admin",
   "description": "Admin console for sending and managing sessions with PublicPass.",
   "version": "1.0.1",
   "icons": {
@@ -23,9 +23,7 @@
     "scripting",
     "tabs",
     "notifications",
-    "webNavigation",
-    "alarms",
-    "clipboardWrite"
+    "alarms"
   ],
   "host_permissions": [
     "https://*/*",

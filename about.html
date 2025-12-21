@@ -11,12 +11,8 @@
 </head>
 <body>
     <main class="page">
-        <!-- Top brand bar -->
-        <header class="brand" aria-label="Public AI">
-            <div class="brand-badge">
-                <img src="assets/imgs/lib-logo.png" alt="Public AI Logo" class="brand-mark" />
-            </div>
-        </header>
+        <!-- Header loaded from header.html -->
+        <div id="header-placeholder"></div>
 
         <!-- Chat bar -->
         <section class="chat-bar">
@@ -43,18 +39,25 @@
                 
                 <div class="content-section">
                     <h2>Our Mission</h2>
-                    <p>Public AI for Libraries is dedicated to democratizing access to artificial intelligence tools and resources for educational institutions worldwide. We believe that AI should be accessible to everyone, regardless of their institution's size or budget.</p>
+                    <p>The Public AI Libraries Project is a nonprofit project dedicated to democratizing access to AI tools and resources for libraries and other educational institutions. We believe that AI should be accessible to everyone without requiring expensive subscriptions or specialized devices.</p>
                 </div>
+
+                <img src="/assets/imgs/kiosk-in-use.png" alt="Library AI workstation in use">
 
                 <div class="content-section">
                     <h2>What We Provide</h2>
-                    <p>Our platform offers libraries and educational institutions access to a comprehensive suite of AI-powered tools including:</p>
+                    <p>We offer libraries and educational institutions bundled access to a curated suite of AI-powered tools including:</p>
                     <ul>
-                        <li><strong>Code Development:</strong> Online IDE and collaboration tools for programming education</li>
-                        <li><strong>AI Chat:</strong> Intelligent conversational AI for research assistance and learning support</li>
-                        <li><strong>Creative Tools:</strong> Image generation, music creation, and multimedia content development</li>
+                        <li><strong>Code Development:</strong> Online development environments and collaboration tools for programming and app development</li>
+                        <li><strong>AI Chat:</strong> Conversational AI for research, learning, and general question answering</li>
+                        <li><strong>Creative Tools:</strong> Generate images, presentations, music, video, and other forms of media</li>
                         <li><strong>Educational Resources:</strong> Presentations, documentation, and learning materials</li>
                     </ul>
+                </div>
+
+                <div class="content-section">
+                    <h2>How It Works</h2>
+                    <p>Public AI in libraries works much like other library services you already know—such as databases, makerspaces, or media labs. Instead of each person paying for AI tools on their own, the library provides shared access in a supportive environment.</p>
                 </div>
 
                 <div class="content-section">
@@ -81,7 +84,8 @@
 
                 <div class="content-section">
                     <h2>Get Started</h2>
-                    <p>Ready to bring AI to your library? Explore our services above or contact us to learn more about implementing Public AI for Libraries in your institution.</p>
+                    <p>If your library offers Public AI, ask staff how to access the AI workstation or tools. Or request that they join by forwarding this link to them: <a href="https://publicai.network/libraries" target="_blank" rel="noopener noreferrer">https://publicai.network/libraries</a>.</p>
+                    <p>Are you a library leader ready to bring AI to your library? Consider joining our <a href="https://publicai.network/libraries" target="_blank" rel="noopener noreferrer">pilot program</a> or <a href="mailto:mohsin@publicai.co">contact us</a> to learn more about implementing Public AI in your institution.</p>
                 </div>
             </div>
 
@@ -100,5 +104,6 @@
             <p>Library AI Dashboard</p>
         </footer>
     </main>
+    <script src="load-header.js"></script>
 </body>
 </html>

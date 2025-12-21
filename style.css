@@ -401,19 +401,21 @@ body{
   padding: 20px 0;
 }
 
-.footer-logo {
-  display: inline-block;
-  margin-top: 16px;
-  transition: opacity 0.2s ease;
-}
 
 .footer-logo:hover {
   opacity: 0.8;
 }
 
+.footer-logo {
+  display: block;
+  margin: 16px auto 0;
+  max-width: 200px;
+}
+
 .footer-logo img {
-  height: 32px;
-  width: auto;
+  width: 100%;
+  height: auto;
+  max-width: 200px;
   display: block;
 }
 

@@ -125,13 +125,39 @@ body{
 
 .nav-toggle span{ display:block; width:24px; height:2px; background:var(--ink); transition:all 0.3s ease; }
 
-.nav-menu{ display:flex; list-style:none; margin:0; padding:0; gap:24px; align-items:center; }
+.nav-menu{ display:flex; list-style:none; margin:0; padding:0; gap:32px; align-items:center; }
 
 .nav-menu li{ margin:0; }
 
-.nav-menu a{ color:var(--ink); text-decoration:none; font-weight:700; font-size:14px; letter-spacing:0.1em; transition:color 0.2s ease; }
+.nav-menu a{ 
+  color:var(--ink); 
+  text-decoration:none; 
+  font-weight:700; 
+  font-size:clamp(16px, 1.5vw, 18px); 
+  letter-spacing:0.02em; 
+  transition:color 0.2s ease;
+  padding:8px 0;
+  position:relative;
+}
 
-.nav-menu a:hover{ color:var(--red); }
+.nav-menu a:hover{ 
+  color:var(--red); 
+}
+
+.nav-menu a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--red);
+  transition: width 0.2s ease;
+}
+
+.nav-menu a:hover::after {
+  width: 100%;
+}
 
 /* Mobile navigation */
 @media (max-width: 720px){
@@ -155,9 +181,16 @@ body{
   
   .nav-menu.active{ right:0; }
   
-  .nav-menu li{ width:100%; padding:12px 0; border-bottom:1px solid #eee; }
+  .nav-menu li{ width:100%; padding:16px 0; border-bottom:1px solid #eee; }
   
-  .nav-menu a{ font-size:16px; }
+  .nav-menu a{ 
+    font-size:18px; 
+    padding:4px 0;
+  }
+  
+  .nav-menu a::after {
+    display: none;
+  }
   
   .nav-toggle.active span:nth-child(1){ transform:rotate(45deg) translate(6px, 6px); }
   .nav-toggle.active span:nth-child(2){ opacity:0; }
@@ -323,6 +356,13 @@ body{
 
 .content-section strong {
   font-weight: 700;
+}
+
+.content-page img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 24px auto;
 }
 
 /* FAQ specific styles */

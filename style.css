@@ -359,10 +359,17 @@ body{
 }
 
 .content-page img {
-  max-width: 100%;
+  max-width: min(50%, 600px);
+  width: 100%;
   height: auto;
   display: block;
   margin: 24px auto;
+}
+
+@media (max-width: 720px) {
+  .content-page img {
+    max-width: min(85%, 400px);
+  }
 }
 
 /* FAQ specific styles */
@@ -386,7 +393,29 @@ body{
 }
 
 /* Footer */
-.footer{ text-align:center; color:#ffffff; margin-top:12px; font-size:14px; }
+.footer{ 
+  text-align:center; 
+  color:#ffffff; 
+  margin-top:12px; 
+  font-size:14px; 
+  padding: 20px 0;
+}
+
+.footer-logo {
+  display: inline-block;
+  margin-top: 16px;
+  transition: opacity 0.2s ease;
+}
+
+.footer-logo:hover {
+  opacity: 0.8;
+}
+
+.footer-logo img {
+  height: 32px;
+  width: auto;
+  display: block;
+}
 
 /* Responsive */
 @media (max-width: 1100px){

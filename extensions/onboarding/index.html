@@ -176,7 +176,25 @@
       .layout { flex-direction: column; }
       .sidebar { width: 100%; height: auto; position: static; border-right: none; border-bottom: 1px solid var(--border-color); padding: 16px; }
       .content { padding: 24px 16px; }
+
+      
     }
+
+        /* Buttons */
+    .button-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+    .btn-link {
+      border: 1px solid var(--border-color);
+      background: var(--bg-sidebar);
+      color: var(--text-primary);
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .btn-link:hover { background: rgba(0,0,0,0.05); }
+    [data-theme="dark"] .btn-link:hover { background: rgba(255,255,255,0.1); }
+  
   </style>
 </head>
 <body>
@@ -212,6 +230,22 @@
             <p style="color: #58a6ff; font-size: small;">Updated: 2025-11-21</p>
 
       <p class="tagline">Onboarding Guide for Library Administrators for Chrome browser extensions</p>
+    
+
+    <p>Get the extensions from here:</p>   <div class="button-row">
+      <button
+        type="button"
+        class="btn-link"
+        onclick="window.open('https://chromewebstore.google.com/detail/publicpass-user/elhdhompioiiejadkmieicblfjobeinp','_blank')">
+        PublicPass User
+      </button>
+      <button
+        type="button"
+        class="btn-link"
+        onclick="window.open('https://chromewebstore.google.com/detail/public-ai-pass-admin/bbfhippldcjmnehocdefhacfolniigci','_blank')">
+        PublicPass Admin
+      </button>
+    </div>
 
     <h2 id="what-publicpass-does">1. What PublicPass Does</h2>
     <p>

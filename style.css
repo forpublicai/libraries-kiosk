@@ -299,7 +299,7 @@ body{
 .bottom-nav ul{ list-style:none; margin:0; padding:0; display:flex; gap:28px; justify-content:center; font-weight:700; }
 .bottom-nav a{ color:var(--ink); text-decoration:none; }
 .bottom-nav a:hover{ color: var(--red); }
-.bottom-nav li.active a{ position:relative; }
+.bottom-nav li.active a{ color: var(--red); position:relative; }
 
 /* remove this old rule that forced the bar to look black */
 .bottom-nav {color: var(--bg);}

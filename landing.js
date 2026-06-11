@@ -57,50 +57,34 @@
     reveals.forEach(function (el) { io.observe(el); });
   }
 
-  /* ---------- Animated stat counters ---------- */
-  function formatNum(n, plain) {
-    if (plain) return String(Math.round(n));
-    return Math.round(n).toLocaleString('en-US');
-  }
-
-  function runCount(el) {
-    var target = parseFloat(el.getAttribute('data-count'));
-    var suffix = el.getAttribute('data-suffix') || '';
-    var plain = el.getAttribute('data-plain') === '1';
-    if (reduceMotion) { el.textContent = formatNum(target, plain) + suffix; return; }
-
-    var duration = 1500;
-    var start = null;
-    function ease(t) { return 1 - Math.pow(1 - t, 3); }
-    function step(ts) {
-      if (start === null) start = ts;
-      var p = Math.min((ts - start) / duration, 1);
-      el.textContent = formatNum(target * ease(p), plain) + suffix;
-      if (p < 1) requestAnimationFrame(step);
-      else el.textContent = formatNum(target, plain) + suffix;
-    }
-    requestAnimationFrame(step);
-  }
-
-  var counters = Array.prototype.slice.call(document.querySelectorAll('[data-count]'));
-  if (reduceMotion || !('IntersectionObserver' in window)) {
-    // Leave the markup's final value in place (no animation).
-  } else {
-    var co = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          runCount(entry.target);
-          co.unobserve(entry.target);
-        }
+  /* ---------- Operational state labels ---------- */
+  var mapStates = Array.prototype.slice.call(document.querySelectorAll('.netmap__state'));
+  if (mapStates.length) {
+    function closeStates(except) {
+      mapStates.forEach(function (state) {
+        if (state !== except) state.classList.remove('is-open');
       });
-    }, { threshold: 0.6 });
-    counters.forEach(function (el) {
-      // Reset to zero up front so the count-up reads cleanly; the markup
-      // keeps the real value for no-JS / reduced-motion users.
-      var plain = el.getAttribute('data-plain') === '1';
-      var suffix = el.getAttribute('data-suffix') || '';
-      el.textContent = formatNum(0, plain) + suffix;
-      co.observe(el);
+    }
+
+    mapStates.forEach(function (state) {
+      function openState() {
+        closeStates(state);
+        state.classList.add('is-open');
+      }
+      function closeState() {
+        state.classList.remove('is-open');
+      }
+
+      state.addEventListener('pointerenter', openState);
+      state.addEventListener('pointerleave', closeState);
+      state.addEventListener('focusin', openState);
+      state.addEventListener('focusout', closeState);
+      state.addEventListener('click', openState);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeStates();
     });
   }
+
 })();

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Public AI Libraries Project</title>
+    <link rel="stylesheet" href="style.css" />
+    <meta name="description" content="Access AI tools and subscriptions through libraries. A nonprofit, open-source project to make AI accessible to everyone." />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Using system fonts for performance; swap easily in CSS if custom font is added -->
+    <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+  
+</head>
+<body>
+    <main class="page">
+        <!-- Header loaded from header.html -->
+        <div id="header-placeholder"></div>
+
+        <!-- Chat bar (inspired by publicai.co/chat) -->
+        <section class="chat-bar">
+            <form class="chat-form" action="https://publicai.co/chat" method="get">
+                <input 
+                    type="text" 
+                    name="q"
+                    class="chat-input" 
+                    placeholder="Ask me anything..." 
+                    aria-label="Chat with AI"
+                />
+                <button type="submit" class="chat-submit" aria-label="Send message">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </form>
+        </section>
+
+        <!-- Framed content area -->
+        <section class="frame">
+            <!-- Grid of services (borders like the mock) -->
+            <div class="services-grid">
+                <a href="https://replit.com" target="_blank" rel="noopener noreferrer" class="service-card card--replit">
+                    <h2 class="service-title">Code</h2>
+                    <p class="service-desc-current">Replit</p>
+                    <p class="service-desc">Code, collaborate, and deploy projects in an instant online IDE</p>
+                </a>
+
+                <a href="https://chat.publicai.co/" target="_blank" rel="noopener noreferrer" class="service-card card--chatbot">
+                    <h2 class="service-title">Chat</h2>
+                    <p class="service-desc-current">Public AI Chat</p>
+                    <p class="service-desc">Interact with our intelligent conversational AI assistant</p>
+                </a>
+
+                <a href="https://www.midjourney.com/" target="_blank" rel="noopener noreferrer" class="service-card card--midjourney">
+                    <h2 class="service-title">Images</h2>
+                    <p class="service-desc-current">Midjourney</p>
+                    <p class="service-desc">Generate stunning images with advanced AI</p>
+                </a>
+
+                <a href="https://suno.com" target="_blank" rel="noopener noreferrer" class="service-card card--suno">
+                    <h2 class="service-title">Music</h2>
+                    <p class="service-desc-current">Suno</p>
+                    <p class="service-desc">Create music and audio content with AI‑powered tools</p>
+                </a>
+
+                <!-- Spans two columns to match the wide Edison tile -->
+                <a href="https://platform.edisonscientific.com/login" target="_blank" rel="noopener noreferrer" class="service-card card--edison">
+                    <h2 class="service-title service-title--xl">Science</h2>
+                    <p class="service-desc-current">Edison</p>
+                    <p class="service-desc">Access AI to accelerate the pace of scientific discovery</p>
+                </a>
+
+                <!-- Additional services requested -->
+                <a href="https://runwayml.com/" target="_blank" rel="noopener noreferrer" class="service-card card--runway">
+                    <h2 class="service-title">Videos</h2>
+                    <p class="service-desc-current">RunwayML</p>
+                    <p class="service-desc">Create and edit video, images, and more with AI</p>
+                </a>
+
+                <a href="https://gamma.app/" target="_blank" rel="noopener noreferrer" class="service-card card--presentations">
+                    <h2 class="service-title">Presentations</h2>
+                    <p class="service-desc-current">Gamma</p>
+                    <p class="service-desc">Create beautiful presentations with AI-powered design</p>
+                </a>
+
+
+
+                <a href="feature-requests.html" class="service-card card--feature">
+                    <h2 class="service-title" style="font-size: 30px;">Request a Feature</h2>
+                    <p class="service-desc-current">Request!</p>
+                    <p class="service-desc">Propose ideas and vote on what we should build next</p>
+                </a>
+            </div>
+
+            <!-- Bottom nav like the mock -->
+            <nav class="bottom-nav" aria-label="Sections">
+                <ul>
+                    <li class="active"><a href="#" aria-current="page">Services</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                </ul>
+            </nav>
+        </section>
+
+        <!-- Footer loaded from footer.html -->
+        <div id="footer-placeholder"></div>
+    </main>
+    <script src="load-header.js"></script>
+    <script src="load-footer.js"></script>
+</body>
+</html>

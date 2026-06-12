@@ -622,6 +622,18 @@ a{ color:inherit; }
 .cta__title{ font-size:clamp(40px,6.5vw,86px); line-height:.98; letter-spacing:-.03em; font-weight:700; margin-bottom:22px; }
 .cta__intro{ font-size:clamp(18px,1.5vw,22px); color:rgba(255,255,255,.9); max-width:50ch; }
 
+/* Two ways to get involved */
+.paths{ display:grid; gap:clamp(40px,5vw,64px); margin-bottom:48px; }
+.path{ border-top:2px solid rgba(255,255,255,.3); padding-top:clamp(26px,3vw,40px); }
+.path__tag{ font-family:var(--mono); font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.75); margin-bottom:16px; }
+.path__title{ font-size:clamp(30px,4.2vw,54px); line-height:1; letter-spacing:-.025em; font-weight:700; margin-bottom:20px; }
+.path .cta__intro{ margin-bottom:0; }
+.path__lede{ font-size:clamp(17px,1.4vw,20px); color:rgba(255,255,255,.92); line-height:1.6; max-width:64ch; margin-bottom:20px; }
+.path__lede strong{ color:#fff; font-weight:700; }
+.path .ideal{ margin-top:28px; }
+.path .cta__actions{ margin-bottom:0; }
+.path__lede:last-of-type{ margin-bottom:28px; }
+
 .ideal{ list-style:none; display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:44px; }
 .ideal li{
   border-top:2px solid rgba(255,255,255,.3); padding-top:20px;

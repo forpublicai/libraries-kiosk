@@ -69,8 +69,6 @@
     var ticking = false;
     var ENDS = null; // per-panel landing target (its matching card slot)
 
-    var ENDS = null; // per-panel landing target (its matching card slot)
-    
     // Start = the same card layout but each panel larger, slightly tilted and
     // nudged so they overlap into a collage; then they settle onto their cards.
     var START_MULT = 1.42;          // how much bigger than the final card the panel starts
@@ -79,7 +77,7 @@
     var RZ = [-3, 2, -4, 3, -2];    // start in-plane tilt per panel
     // start nudge off card centre [x,y] per panel (video,code,music,chat,images)
     // top row (code/music/chat) starts well up to fill the space above the collage
-    var OFF = [[-220, -8], [14, -360], [22, -172], [-140, -204], [120, -250]];
+    var OFF = [[-200, -8], [14, -360], [22, -172], [-140, -204], [120, -250]];
 
     
     function playVids() {
@@ -139,13 +137,14 @@
         if (t.cropH && t.baseH && t.cropH < t.baseH - 4) {
           panels[i].style.height = lerp(t.baseH, t.cropH, e) + 'px';
         }
-        // hold opaque through the settle, then dissolve into the card
-        panels[i].style.opacity = 1 - smooth(0.84, 1, p);
+        // settle into each card slot as a dim living background (fade to 0.25, not 0)
+        panels[i].style.opacity = 1 - smooth(0.84, 1, p) * 0.75;
       }
       // the Explore Services screen materialises as the layers arrive
-          var dp = smooth(0.72, 0.97, p);
+      var dp = smooth(0.72, 0.97, p);
       device.style.opacity = dp;
       device.style.transform = 'translate(-50%,-50%) scale(' + lerp(0.985, 1, dp) + ')';
+
     }
 
     function progress() {

@@ -216,6 +216,8 @@ a{ color:inherit; }
 /* panels backed by real footage (video/code/music/images) */
 .panel__body--media{ padding:0; }
 .panel__vid{ width:100%; height:100%; object-fit:cover; display:block; background:#15110f; }
+/* Video panel: cover from top so height-crop trims the bottom, not the subject */
+.panel--video .panel__vid{ object-position:center top; }
 
 .panel__body--video{ justify-content:center; }
 .vplayer{ flex:1; border-radius:10px; background:linear-gradient(135deg,#2a2320,#15110f); display:flex; align-items:center; justify-content:center; }
@@ -355,12 +357,14 @@ a{ color:inherit; }
 .kui__banner{ margin:13px 0; background:#fdf1e7; border:1px solid #f6dcc9; border-radius:8px; padding:10px 13px; font-size:11px; line-height:1.45; color:var(--ink-soft); }
 .kui__banner b{ color:var(--ink); }
 .kui__banner a{ color:var(--red); text-decoration:none; }
-.kui__grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
-.kui__card{ background:#f6f5f2; padding:20px 12px; min-height:138px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:7px; }
+.kui__grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); }
+.kui__card{ background:#f6f5f2; padding:20px 12px; min-height:138px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:7px; cursor:pointer; transition:background .15s; }
+.kui__card:hover{ background:#eae7e3; }
 .kui__card--vid{ grid-column:span 2; }
 .kui__card h4{ font-size:15px; font-weight:700; color:var(--ink); }
 .kui__card p{ font-size:10px; line-height:1.4; color:var(--muted); max-width:26ch; }
 .kui__foot{ display:flex; gap:26px; justify-content:center; margin-top:14px; font-family:var(--mono); font-size:9px; letter-spacing:.12em; color:var(--muted); }
+
 
 @media (min-width:1001px){
   /* Scroll runway: pin the hero while the deck collapses (JS adds .is-pinned). */
@@ -394,6 +398,12 @@ a{ color:inherit; }
   }
   .is-pinned .hero__device:hover .device{ transform:translate(-50%,-50%); }  /* neutralise static tilt/hover */
   .is-pinned .device__caption{ position:relative; z-index:2; margin-top:0; }
+
+  /* Transparent shell — panels stay glowing behind each card slot */
+  .is-pinned .device.kui{ background:transparent; }
+  .is-pinned .kui__card{ background:transparent; }
+  .is-pinned .kui__grid{ background:rgba(21,17,15,.22); } /* dark gap lines */
+
 }
 
 /* =================================================================

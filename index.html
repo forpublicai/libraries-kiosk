@@ -80,25 +80,25 @@
           <div class="kioskstage" id="kioskStage">
             <div class="deck" id="kioskDeck">
               <!-- DOM order = back → front (video deepest, images frontmost) -->
-              <article class="panel panel--video">
+              <article class="panel panel--video" data-cap="video">
                 <div class="panel__bar"><span class="panel__dots"><i></i><i></i><i></i></span><span class="panel__name">Video</span></div>
                 <div class="panel__body panel__body--media">
                   <video class="panel__vid" src="assets/video2.mp4" autoplay muted loop playsinline preload="metadata"></video>
                 </div>
               </article>
-              <article class="panel panel--code">
+              <article class="panel panel--code" data-cap="code">
                 <div class="panel__bar"><span class="panel__dots"><i></i><i></i><i></i></span><span class="panel__name">Code</span></div>
                 <div class="panel__body panel__body--media">
                   <video class="panel__vid" src="assets/coding1.mp4" autoplay muted loop playsinline preload="metadata"></video>
                 </div>
               </article>
-              <article class="panel panel--music">
+              <article class="panel panel--music" data-cap="music">
                 <div class="panel__bar"><span class="panel__dots"><i></i><i></i><i></i></span><span class="panel__name">Music</span></div>
                 <div class="panel__body panel__body--media">
                   <video class="panel__vid" src="assets/music1.mp4" autoplay muted loop playsinline preload="metadata"></video>
                 </div>
               </article>
-              <article class="panel panel--chat">
+              <article class="panel panel--chat" data-cap="chat">
                 <div class="panel__bar"><span class="panel__dots"><i></i><i></i><i></i></span><span class="panel__name">Chat</span></div>
                 <div class="panel__body panel__body--chat">
                   <div class="bub bub--in">How do I start a résumé?</div>
@@ -106,7 +106,7 @@
                   <div class="bub bub--in">Mostly retail and childcare.</div>
                 </div>
               </article>
-              <article class="panel panel--images">
+              <article class="panel panel--images" data-cap="images">
                 <div class="panel__bar"><span class="panel__dots"><i></i><i></i><i></i></span><span class="panel__name">Images</span></div>
                 <div class="panel__body panel__body--media">
                   <video class="panel__vid" src="assets/image1.mp4" autoplay muted loop playsinline preload="metadata"></video>
@@ -114,18 +114,27 @@
               </article>
             </div>
 
-            <div class="device" id="kioskDevice">
-              <div class="device__bar">
-                <span class="device__dot"></span><span class="device__dot"></span><span class="device__dot"></span>
-                <span class="device__url">the kiosk</span>
+            <div class="device kui" id="kioskDevice">
+              <div class="kui__topbar">
+                <div class="kui__brand"><span class="kui__mark">&#8805;</span> Public&nbsp;AI</div>
+                <div class="kui__tools">
+                  <span class="kui__pill">100 CREDITS</span>
+                  <span class="kui__icon">&#9789;</span>
+                  <span class="kui__exit">EXIT</span>
+                </div>
               </div>
-              <div class="device__screen">
-                <div class="ktile ktile--lg"><span class="ktile__k">Chat</span><span class="ktile__s">Public&nbsp;AI</span></div>
-                <div class="ktile ktile--c3"><span class="ktile__k">Code</span></div>
-                <div class="ktile ktile--c3 ktile--red"><span class="ktile__k">Images</span></div>
-                <div class="ktile"><span class="ktile__k">Music</span></div>
-                <div class="ktile"><span class="ktile__k">Video</span></div>
-                <div class="ktile"><span class="ktile__k">Learn</span><span class="ktile__s">Library-vetted</span></div>
+              <div class="kui__body">
+                <div class="kui__head">
+                  <h3 class="kui__title">Explore Services</h3>
+                </div>
+                <div class="kui__grid">
+                  <div class="kui__card" data-cap="chat"><h4>Public AI Chat</h4><p>Have a conversation with AI. Ask questions, get explanations, brainstorm ideas.</p></div>
+                  <div class="kui__card" data-cap="code"><h4>Code</h4><p>Code, collaborate, and deploy projects in an instant online IDE.</p></div>
+                  <div class="kui__card" data-cap="music"><h4>Music</h4><p>Create music and audio content with AI-powered tools.</p></div>
+                  <div class="kui__card kui__card--img" data-cap="images"><h4>Images</h4><p>Generate stunning images with advanced AI models.</p></div>
+                  <div class="kui__card kui__card--vid" data-cap="video"><h4>Videos</h4><p>Create and edit video content with AI.</p></div>
+                </div>
+                <div class="kui__foot"><span>RESOURCES</span><span>FAQS</span></div>
               </div>
             </div>
           </div>

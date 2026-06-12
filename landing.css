@@ -206,7 +206,7 @@ a{ color:inherit; }
 .panel{ display:none; }
 
 /* ---- capability panel mock-ups (only rendered inside the desktop deck) ---- */
-.panel__bar{ display:flex; align-items:center; gap:7px; padding:9px 13px; border-bottom:1px solid var(--line); background:var(--paper-warm); }
+.panel__bar{ display:none; }
 .panel__dots{ display:flex; gap:5px; }
 .panel__dots i{ width:8px; height:8px; border-radius:50%; background:#d9d3c9; }
 .panel__dots i:first-child{ background:var(--red); }
@@ -338,6 +338,30 @@ a{ color:inherit; }
 .ktile--red:hover{ background:var(--red-deep); }
 .device__caption{ margin-top:18px; font-family:var(--mono); font-size:12px; letter-spacing:.04em; color:var(--muted); text-align:center; }
 
+/* ---- Kiosk "Explore Services" screen (the interface the deck merges into) ---- */
+.kui{ background:#fff; overflow:hidden; }
+.kui__topbar{ display:flex; align-items:center; justify-content:space-between; padding:9px 14px; border-bottom:1px solid var(--line); }
+.kui__brand{ display:flex; align-items:center; gap:7px; font-weight:700; font-size:14px; color:var(--ink); white-space:nowrap; }
+.kui__mark{ display:inline-grid; place-items:center; width:20px; height:20px; background:var(--red); color:#fff; border-radius:5px; font-size:12px; font-weight:700; }
+.kui__tools{ display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:9.5px; letter-spacing:.03em; }
+.kui__pill{ border:1px solid var(--line); border-radius:7px; padding:5px 8px; color:var(--ink); white-space:nowrap; }
+.kui__pill--guest{ background:#ffe3dd; border-color:#ffc8bd; color:var(--red-deep); }
+.kui__icon{ border:1px solid var(--line); border-radius:7px; padding:3px 7px; font-size:11px; }
+.kui__exit{ border:1px solid var(--ink); border-radius:7px; padding:5px 9px; color:var(--ink); font-weight:700; }
+.kui__body{ padding:16px 18px 14px; }
+.kui__head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; border-bottom:1px solid var(--line); padding-bottom:12px; }
+.kui__title{ font-size:23px; font-weight:700; letter-spacing:-.02em; color:var(--ink); }
+.kui__session{ font-family:var(--mono); font-size:9px; letter-spacing:.13em; color:var(--muted); white-space:nowrap; }
+.kui__banner{ margin:13px 0; background:#fdf1e7; border:1px solid #f6dcc9; border-radius:8px; padding:10px 13px; font-size:11px; line-height:1.45; color:var(--ink-soft); }
+.kui__banner b{ color:var(--ink); }
+.kui__banner a{ color:var(--red); text-decoration:none; }
+.kui__grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.kui__card{ background:#f6f5f2; padding:20px 12px; min-height:138px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:7px; }
+.kui__card--vid{ grid-column:span 2; }
+.kui__card h4{ font-size:15px; font-weight:700; color:var(--ink); }
+.kui__card p{ font-size:10px; line-height:1.4; color:var(--muted); max-width:26ch; }
+.kui__foot{ display:flex; gap:26px; justify-content:center; margin-top:14px; font-family:var(--mono); font-size:9px; letter-spacing:.12em; color:var(--muted); }
+
 @media (min-width:1001px){
   /* Scroll runway: pin the hero while the deck collapses (JS adds .is-pinned). */
   .hero-pin.is-pinned{ height:270vh; }
@@ -354,16 +378,18 @@ a{ color:inherit; }
     display:flex; flex-direction:column;
     position:absolute; top:50%; left:50%;
     width:min(440px,31vw); height:min(330px,23vw); margin:0;
-    border:1px solid var(--line); border-radius:16px; overflow:hidden;
+    border:2px solid var(--ink); border-radius:16px; overflow:hidden;
     background:rgba(255,255,255,.93);
-    box-shadow:0 54px 90px -50px rgba(21,17,15,.55), 0 6px 22px -12px rgba(21,17,15,.32);
+    box-shadow:0 75px 120px -40px rgba(21,17,15,.72), 0 22px 48px -14px rgba(21,17,15,.5);
     backface-visibility:hidden; will-change:transform,opacity;
     transform:translate(-50%,-50%);            /* JS overrides per scroll frame */
   }
 
   /* The unified kiosk UI: resolved screen, JS-controlled */
   .is-pinned .device{
-    position:absolute; top:50%; left:50%; width:min(470px,33vw); max-width:none; margin:0;
+    position:absolute; top:50%; left:50%; width:min(560px,46vw); max-width:none; margin:0;
+    border:2px solid var(--ink); border-radius:14px;
+    box-shadow:0 70px 120px -45px rgba(21,17,15,.62), 0 14px 34px -10px rgba(21,17,15,.42);
     transform:translate(-50%,-50%); transition:none; opacity:0; will-change:transform,opacity;
   }
   .is-pinned .hero__device:hover .device{ transform:translate(-50%,-50%); }  /* neutralise static tilt/hover */

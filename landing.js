@@ -67,7 +67,21 @@
     var vids = Array.prototype.slice.call(deck.querySelectorAll('.panel__vid'));
     var desktopMQ = window.matchMedia('(min-width:1001px)');
     var ticking = false;
+    var ENDS = null; // per-panel landing target (its matching card slot)
 
+    var ENDS = null; // per-panel landing target (its matching card slot)
+    
+    // Start = the same card layout but each panel larger, slightly tilted and
+    // nudged so they overlap into a collage; then they settle onto their cards.
+    var START_MULT = 1.42;          // how much bigger than the final card the panel starts
+    var START_Z = 46;               // a touch of depth at the start
+    var ROT = [-5, 4, -6, 5, -4];   // start rotateY per panel (video,code,music,chat,images)
+    var RZ = [-3, 2, -4, 3, -2];    // start in-plane tilt per panel
+    // start nudge off card centre [x,y] per panel (video,code,music,chat,images)
+    // top row (code/music/chat) starts well up to fill the space above the collage
+    var OFF = [[-220, -8], [14, -360], [22, -172], [-140, -204], [120, -250]];
+
+    
     function playVids() {
       vids.forEach(function (v) {
         var p = v.play && v.play();
@@ -88,22 +102,50 @@
       return { x: -98 * d, y: -30 * d, z: -10 * d, ry: -58, rx: 4, d: d };
     }
 
+    // Each panel's landing target = the centre of its matching service card,
+    // measured (unscaled) relative to the screen's centre. So a layer ends up
+    // exactly on its card in the Explore Services UI.
+    function computeEnds() {
+      panels.forEach(function (p) { p.style.height = ''; }); // measure natural height
+      var dw = device.offsetWidth, dh = device.offsetHeight;
+      ENDS = panels.map(function (panel) {
+        var cap = panel.getAttribute('data-cap');
+        var card = cap && device.querySelector('.kui__card[data-cap="' + cap + '"]');
+        if (!card || !panel.offsetWidth || !dw) return { tx: 0, ty: 0, scale: 0.5, baseH: 0, cropH: 0 };
+        var cx = card.offsetLeft + card.offsetWidth / 2;
+        var cy = card.offsetTop + card.offsetHeight / 2;
+        var scale = card.offsetWidth / panel.offsetWidth;
+        var baseH = panel.offsetHeight;
+        // height (pre-scale) that makes the panel end up exactly the card's height,
+        // so a too-tall layer (the wide Videos one) crops to match the others
+        var cropH = card.offsetHeight / scale;
+        return { tx: cx - dw / 2, ty: cy - dh / 2, scale: scale, baseH: baseH, cropH: cropH };
+      });
+    }
+
     function render(p) {
       var e = easeInOut(p);
       for (var i = 0; i < N; i++) {
-        var s = poseFor(i);
-        var x = lerp(s.x, 0, e), y = lerp(s.y, 0, e), z = lerp(s.z, 0, e);
-        var ry = lerp(s.ry, 0, e), rx = lerp(s.rx, 0, e);
-        // deeper panels fade a touch earlier; all gone by ~p=0.82
-        var op = 1 - smooth(0.5, 0.82, p + s.d * 0.04);
+
+        var t = (ENDS && ENDS[i]) || { tx: 0, ty: 0, scale: 0.5 };
+      // start pose: same card centre, bigger, tilted, nudged into a collage
+        var sx = t.tx + OFF[i][0], sy = t.ty + OFF[i][1], ss = t.scale * START_MULT;
+        var x = lerp(sx, t.tx, e), y = lerp(sy, t.ty, e), z = lerp(START_Z, 0, e);
+        var ry = lerp(ROT[i], 0, e), rz = lerp(RZ[i], 0, e), rx = lerp(2, 0, e);
+        var sc = lerp(ss, t.scale, e);
         panels[i].style.transform =
-          'translate(-50%,-50%) translate3d(' + x + 'px,' + y + 'px,' + z + 'px) rotateY(' + ry + 'deg) rotateX(' + rx + 'deg)';
-        panels[i].style.opacity = op;
+'translate(-50%,-50%) translate3d(' + x + 'px,' + y + 'px,' + z + 'px) rotateY(' + ry + 'deg) rotateX(' + rx + 'deg) rotateZ(' + rz + 'deg) scale(' + sc + ')';
+        // crop tall layers (the wide Videos frame) down to the card's height as we near the merge
+        if (t.cropH && t.baseH && t.cropH < t.baseH - 4) {
+          panels[i].style.height = lerp(t.baseH, t.cropH, e) + 'px';
+        }
+        // hold opaque through the settle, then dissolve into the card
+        panels[i].style.opacity = 1 - smooth(0.84, 1, p);
       }
-      var dp = smooth(0.52, 0.96, p);
+      // the Explore Services screen materialises as the layers arrive
+          var dp = smooth(0.72, 0.97, p);
       device.style.opacity = dp;
-      device.style.transform =
-        'translate(-50%,-50%) translate3d(0,' + lerp(16, 0, dp) + 'px,0) rotateY(' + lerp(-10, 0, dp) + 'deg) scale(' + lerp(0.94, 1, dp) + ')';
+      device.style.transform = 'translate(-50%,-50%) scale(' + lerp(0.985, 1, dp) + ')';
     }
 
     function progress() {
@@ -118,25 +160,34 @@
       window.requestAnimationFrame(function () { render(progress()); ticking = false; });
     }
     function clearInline() {
-      panels.forEach(function (p) { p.style.transform = ''; p.style.opacity = ''; });
+      panels.forEach(function (p) { p.style.transform = ''; p.style.opacity = ''; p.style.height = ''; });
       device.style.transform = ''; device.style.opacity = '';
+    }
+    function recompute() {
+      if (!heroPin.classList.contains('is-pinned')) return;
+      computeEnds();
+      render(progress());
     }
     function setup() {
       if (desktopMQ.matches && !reduceMotion) {
         heroPin.classList.add('is-pinned');
+        computeEnds();
         window.addEventListener('scroll', onScroll, { passive: true });
-        window.addEventListener('resize', onScroll);
+        window.addEventListener('resize', recompute);
         render(progress());
         playVids();
       } else {
         heroPin.classList.remove('is-pinned');
         window.removeEventListener('scroll', onScroll);
-        window.removeEventListener('resize', onScroll);
+        window.removeEventListener('resize', recompute);
         clearInline();
       }
     }
     if (desktopMQ.addEventListener) desktopMQ.addEventListener('change', setup);
     else if (desktopMQ.addListener) desktopMQ.addListener(setup);
+    // card sizes can shift once fonts finish loading — re-measure then
+    window.addEventListener('load', recompute);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(recompute);
     setup();
   }
 

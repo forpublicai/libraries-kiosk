@@ -6,3 +6,6 @@
 venv/
 *.toml
 *.env
+/.agents
+/.claude
+/tools

@@ -47,13 +47,16 @@
 
   <main>
     <!-- ============================== HERO ============================== -->
+    <!-- .hero-pin is the scroll runway; JS adds .is-pinned on desktop to pin the hero
+         and scrub the 3D deck collapsing into the kiosk UI. -->
+    <div class="hero-pin" id="heroPin">
     <section class="hero">
       <div class="hero__grid">
         <div class="hero__copy reveal">
           <p class="kicker">A national pilot program. 2025&ndash;2026</p>
           <h1 class="hero__title">Building<br>Public&nbsp;AI<br><span class="ink-red">with libraries</span></h1>
           <p class="hero__lede">In a national effort to make AI more accessible and useful for all communities, the Library of Congress, Metagov, and Public Knowledge, in partnership with the Utah State Library and the New Jersey State Library, have launched a pilot program to bring community-based AI services to public libraries across the United States.</p>
-          <p class="hero__movement">We are part of the broader movement for public AI.</p>
+          <p class="hero__movement">We are part of the broader movement for <a href="https://publicai.network/" target="_blank" rel="noopener noreferrer">Public AI</a>.</p>
 
           <div class="hero__actions">
             <a class="btn btn--solid btn--lg" href="https://forms.gle/zSL29RcJRC7A9Qk39">Apply to be a pilot site</a>
@@ -72,26 +75,65 @@
           </div>
         </div>
 
-        <!-- Kiosk device mock — echoes the in-library workstation -->
+        <!-- Kiosk: a 3D deck of capability panels that scrubs into the unified kiosk UI -->
         <div class="hero__device reveal" aria-hidden="true">
-          <div class="device">
-            <div class="device__bar">
-              <span class="device__dot"></span><span class="device__dot"></span><span class="device__dot"></span>
-              <span class="device__url">the kiosk</span>
+          <div class="kioskstage" id="kioskStage">
+            <div class="deck" id="kioskDeck">
+              <!-- DOM order = back → front (video deepest, images frontmost) -->
+              <article class="panel panel--video">
+                <div class="panel__bar"><span class="panel__dots"><i></i><i></i><i></i></span><span class="panel__name">Video</span></div>
+                <div class="panel__body panel__body--media">
+                  <video class="panel__vid" src="assets/video2.mp4" autoplay muted loop playsinline preload="metadata"></video>
+                </div>
+              </article>
+              <article class="panel panel--code">
+                <div class="panel__bar"><span class="panel__dots"><i></i><i></i><i></i></span><span class="panel__name">Code</span></div>
+                <div class="panel__body panel__body--media">
+                  <video class="panel__vid" src="assets/coding1.mp4" autoplay muted loop playsinline preload="metadata"></video>
+                </div>
+              </article>
+              <article class="panel panel--music">
+                <div class="panel__bar"><span class="panel__dots"><i></i><i></i><i></i></span><span class="panel__name">Music</span></div>
+                <div class="panel__body panel__body--media">
+                  <video class="panel__vid" src="assets/music1.mp4" autoplay muted loop playsinline preload="metadata"></video>
+                </div>
+              </article>
+              <article class="panel panel--chat">
+                <div class="panel__bar"><span class="panel__dots"><i></i><i></i><i></i></span><span class="panel__name">Chat</span></div>
+                <div class="panel__body panel__body--chat">
+                  <div class="bub bub--in">How do I start a résumé?</div>
+                  <div class="bub bub--out">Let&rsquo;s build one together — what work have you done?</div>
+                  <div class="bub bub--in">Mostly retail and childcare.</div>
+                </div>
+              </article>
+              <article class="panel panel--images">
+                <div class="panel__bar"><span class="panel__dots"><i></i><i></i><i></i></span><span class="panel__name">Images</span></div>
+                <div class="panel__body panel__body--media">
+                  <video class="panel__vid" src="assets/image1.mp4" autoplay muted loop playsinline preload="metadata"></video>
+                </div>
+              </article>
             </div>
-            <div class="device__screen">
-              <div class="ktile ktile--lg"><span class="ktile__k">Chat</span><span class="ktile__s">Public&nbsp;AI</span></div>
-              <div class="ktile ktile--c3"><span class="ktile__k">Code</span></div>
-              <div class="ktile ktile--c3 ktile--red"><span class="ktile__k">Images</span></div>
-              <div class="ktile"><span class="ktile__k">Music</span></div>
-              <div class="ktile"><span class="ktile__k">Video</span></div>
-              <div class="ktile"><span class="ktile__k">Learn</span><span class="ktile__s">Library-vetted</span></div>
+
+            <div class="device" id="kioskDevice">
+              <div class="device__bar">
+                <span class="device__dot"></span><span class="device__dot"></span><span class="device__dot"></span>
+                <span class="device__url">the kiosk</span>
+              </div>
+              <div class="device__screen">
+                <div class="ktile ktile--lg"><span class="ktile__k">Chat</span><span class="ktile__s">Public&nbsp;AI</span></div>
+                <div class="ktile ktile--c3"><span class="ktile__k">Code</span></div>
+                <div class="ktile ktile--c3 ktile--red"><span class="ktile__k">Images</span></div>
+                <div class="ktile"><span class="ktile__k">Music</span></div>
+                <div class="ktile"><span class="ktile__k">Video</span></div>
+                <div class="ktile"><span class="ktile__k">Learn</span><span class="ktile__s">Library-vetted</span></div>
+              </div>
             </div>
           </div>
           <p class="device__caption">One shared workstation. A curated suite of AI tools.</p>
         </div>
       </div>
     </section>
+    </div><!-- /.hero-pin -->
 
     <!-- ============================== WHY LIBRARIES ============================== -->
     <section class="section" id="why">

@@ -653,12 +653,42 @@ a{ color:inherit; }
 .cta__contact a:hover{ color:var(--ink); }
 
 /* =================================================================
+   TEAM
+   ================================================================= */
+.team{
+  list-style:none; display:grid; grid-template-columns:repeat(2,1fr); gap:20px;
+}
+.team__card{
+  display:flex; align-items:center; gap:20px;
+  background:#fff; border:1px solid var(--ink); border-radius:var(--radius);
+  padding:24px; transition:transform .22s var(--ease), box-shadow .22s var(--ease);
+}
+.team__card:hover{ transform:translateY(-4px); box-shadow:0 24px 50px -28px rgba(21,17,15,.32); }
+.team__photo{
+  width:92px; height:92px; border-radius:50%; object-fit:cover; object-position:50% 50%; flex:0 0 auto;
+  border:1px solid var(--line);
+}
+.team__photo--mohsin{ object-position:50% 10%; }
+.team__name{ font-size:19px; font-weight:700; letter-spacing:-.01em; margin-bottom:8px; }
+.team__role{ font-size:14.5px; color:var(--ink-soft); line-height:1.45; }
+.team__role strong{ color:var(--ink); font-weight:700; }
+
+.team__advisors{ margin-top:clamp(48px,6vw,72px); }
+.team__subhead{
+  font-size:clamp(24px,2.6vw,32px); font-weight:700; letter-spacing:-.01em;
+  color:var(--red-deep); margin-bottom:24px;
+}
+.team--advisors{ grid-template-columns:repeat(3,1fr); }
+.team__card--advisor{ flex-direction:column; text-align:center; gap:14px; padding:28px 22px; }
+.team__card--advisor .team__photo{ width:96px; height:96px; }
+
+/* =================================================================
    FOOTER
    ================================================================= */
 .foot{ background:var(--ink); color:#fff; padding:clamp(48px,6vw,72px) 0 clamp(32px,4vw,48px); }
 .foot__inner{ display:flex; flex-wrap:wrap; align-items:center; gap:24px 40px; }
 .foot__logo img{ height:30px; width:auto; }
-.foot__logo{ filter:brightness(0) invert(1); transition:opacity .2s var(--ease); }
+.foot__logo{ transition:opacity .2s var(--ease); }
 .foot__logo:hover{ opacity:.7; }
 .foot__links{ display:flex; flex-wrap:wrap; gap:24px; margin-left:auto; }
 .foot__links a{ text-decoration:none; font-size:15px; color:var(--muted-light); transition:color .2s var(--ease); }
@@ -712,6 +742,8 @@ a{ color:inherit; }
   .ideal{ grid-template-columns:1fr; gap:0; }
   .ideal li{ padding:18px 0; border-top:1px solid rgba(255,255,255,.3); }
   .tools{ grid-template-columns:1fr; }
+  .team{ grid-template-columns:1fr; }
+  .team--advisors{ grid-template-columns:1fr; }
 }
 @media (max-width:480px){
   .tools{ grid-template-columns:1fr; }
